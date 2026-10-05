@@ -379,6 +379,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .tpick .tp-check svg{width:12px;height:12px}
 .pane[data-pane="template"] .pane-head{margin-bottom:-4px}
 .tpl-restore{margin-top:10px}
+/* template step: just the templates, no live poster beside them */
+.studio[data-step="template"] .studio-body{grid-template-columns:minmax(0,1fr)}
+.studio[data-step="template"] .stage{display:none}
+.studio[data-step="template"] .panel{border-right:0}
+.studio[data-step="template"] .pane[data-pane="template"]{width:100%;max-width:1240px;margin:0 auto}
+.studio[data-step="template"] .panel-foot{justify-content:center;gap:12px}
+.studio[data-step="template"] .panel-foot .btn{min-width:180px}
 .tpl-pick.dense .tp-body b{font-size:8.5px;line-height:10.5px;letter-spacing:-.02em}
 .tpl-pick.dense .tp-del{width:18px;height:18px}
 .tpl-pick.dense .tp-del svg,.tpl-pick.dense .tp-check svg{width:10px;height:10px}
@@ -5462,7 +5469,7 @@ function fitTplPick() {
   const foot = $('.panel-foot').getBoundingClientRect().top, top = box.getBoundingClientRect().top;
   const H = foot - top - ($('#tpl-restore').offsetHeight || 0) - 14;
   let cols = 2;
-  for (let c = 2; c <= 8; c++) {
+  for (let c = 2; c <= 10; c++) {
     cols = c; const cw = (W - gap * (c - 1)) / c, ch = (cw - pad) / ar + pad + label, rows = Math.ceil(n / c);
     if (rows * ch + (rows - 1) * gap <= H) break;
   }

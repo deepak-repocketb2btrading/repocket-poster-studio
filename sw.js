@@ -1,5 +1,5 @@
 /* RePocket Poster Studio service worker: offline app shell + notification clicks */
-const VERSION = 'rps-20261005214442';
+const VERSION = 'rps-20261005215105';
 const RUNTIME = 'rps-runtime';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 

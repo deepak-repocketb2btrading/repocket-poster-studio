@@ -6172,10 +6172,10 @@ async function init() {
   await refreshUploads();
   const draft = LS.get('draft', null);
   if (draft && draft.v === 1) App.project = migrate(draft);
+  else { App.project = newProject(); if (App.settings.firstRun) { App.project.raw = SAMPLE_STOCK; App.project.isSample = true; } }
   if (App.settings.applyWarehouse) { const p = App.project; if (draft && p.template === 'premium' && p.bg.id === 'studio-graphite') { p.bg = { ...p.bg, id: 'ph-warehouse', overlay: 0.48, blur: 0.12 }; p.layout.card = 'liquid'; } delete App.settings.applyWarehouse; App.saveSettings(); }
   if (App.settings.applyLiquid) { if (draft && App.project.template === 'premium' && App.project.layout.card === 'glass') App.project.layout.card = 'liquid'; delete App.settings.applyLiquid; App.saveSettings(); }
   if (App.settings.applyDefV) { if (draft) { App.project.imageStyle = App.settings.defaults.imageStyle === 'photo' ? 'photo' : 'illustration'; App.project.show.images = true; App.project.show.price = !!App.settings.defaults.showPrice; App.project.pages = { ...pagesFromDefault(App.settings.defaults.perPoster), titles: true }; } delete App.settings.applyDefV; App.saveSettings(); }
-  else { App.project = newProject(); if (App.settings.firstRun) { App.project.raw = SAMPLE_STOCK; App.project.isSample = true; } }
   if (App.project.isSample || (!draft && App.project.raw)) { const r = Parser.parse(App.project.raw, { currency: App.settings.defaults.currency }); App.project.products = Parser.merge(App.project.products, r.products); if (!App.project.text.subtitle) { App.project.text.subtitle = suggestSubtitle(); App.project.autoSub = App.project.text.subtitle; } }
   App.settings.firstRun = false; App.saveSettings(); if (!draft) LS.set('draft', App.project);
   assetKeys(App.project).forEach(k => Img.load(k));

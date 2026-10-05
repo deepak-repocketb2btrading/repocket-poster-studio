@@ -1512,6 +1512,19 @@ function gradeLabel(g) {
   return g;
 }
 function batteryLabel(b) { return b ? `${b} Battery` : ''; }
+// RePocket stock rules: ASIS and ASIS+ are Apple-only grades and always ship in packs of 20 pcs
+const PACK_SIZE = 20;
+const isPackGrade = g => /^asis\+?$/i.test(String(g || '').trim());
+const isApple = p => p.brand === 'Apple' || ['iphone', 'ipad', 'mac', 'watch', 'airpods'].includes(p.family) || /\b(iphone|ipad|macbook|imac|airpods|apple)\b/i.test(p.model || '');
+const knownBrand = p => !!(p.brand || p.family || (p.model || '').trim());
+const packSizeOf = p => (isPackGrade(p.grade) && (isApple(p) || !knownBrand(p)) ? PACK_SIZE : null);
+// "300 pcs · 15 packs" when it divides evenly, otherwise just pieces
+function qtyText(n, pack) {
+  n = Number(n); const pcs = `${n.toLocaleString('en-US')} pcs`;
+  if (!pack || !n || n % pack) return pcs;
+  const k = n / pack; return `${pcs} · ${k.toLocaleString('en-US')} pack${k === 1 ? '' : 's'}`;
+}
+const totalQty = p => (p.qty != null && p.qty !== '' ? +p.qty : (p.variants || []).reduce((a, v) => a + (v.qty != null && v.qty !== '' ? +v.qty : 0), 0));
 
 const Parser = (() => {
   const GB = new Set([8, 16, 32, 64, 128, 256, 512, 1024, 2048]);
@@ -1739,7 +1752,7 @@ const Parser = (() => {
   }
 
   function parseLine(raw) {
-    const L = { raw, model: null, storages: [], prices: [], qtys: [], currency: null, battery: '', grade: '', cond: [], regions: [], sim: '', color: '', ram: '', notes: '', location: '', moq: null, guess: false };
+    const L = { raw, model: null, storages: [], prices: [], qtys: [], packs: [], currency: null, battery: '', grade: '', cond: [], regions: [], sim: '', color: '', ram: '', notes: '', location: '', moq: null, guess: false };
     const tabbed = raw.includes('\t');
     let s = ' ' + raw.replace(/[–—]/g, '-').replace(/[“”″]/g, '"').replace(/[‘’]/g, "'").replace(/\t/g, '  ').replace(/\*/g, ' ') + ' ';
     s = s.replace(/(eur|usd|gbp|aed|€|\$|£)x(\d)/gi, '$1 x$2');
@@ -1755,6 +1768,8 @@ const Parser = (() => {
     }
     cut(/\b(?:stock\s+(?:is\s+)?(?:in|at|located\s+in)|physical(?:ly)?\s+(?:stock\s+)?(?:in|at)|located\s+(?:in|at)|location\s*[:\-]?|loc\s*[:\-]|ex[\s-]?works|warehouse\s*(?:in|at|:)|ships?\s+from|shipping\s+from|dispatch(?:ed)?\s+from|ready\s+in)\s+([a-z][a-z .'-]{1,30})/gi, (m, place) => { const p = cleanPlace(place); if (!p) return false; L.location = p; });
     cut(/\bmoq\s*[:=]?\s*(\d[\d.,]*)\s*(?:pcs?|units?)?/gi, (m, n) => { L.moq = parseNum(n); });
+    cut(/\bpacks?\s+of\s+\d{1,3}(?:\s*(?:pcs?|pieces?|units?))?\b/gi, () => { });
+    cut(/(?<![a-z])(?:[x×]\s*)?(\d[\d.,]*)\s*(?:packs?|pks?|boxes|box)\b\.?/gi, (m, n) => { L.packs.push(parseNum(n)); });
     cut(/(?<![a-z])[x×]\s*(\d[\d.,]*(?:\s*\/{1,3}\s*\d[\d.,]*)*)\s*(?:pcs?|pieces?|units?|nos|qty|stk)?\b\.?/gi, (m, list) => { L.qtys.push(...splitList(list)); });
     cut(/(\d[\d.,]*(?:\s*\/{1,3}\s*\d[\d.,]*)*)\s*(?:pcs?|pieces?|units?|nos|stk)\b\.?/gi, (m, list) => { L.qtys.push(...splitList(list)); });
     cut(/\b(?:qty|quantity|avail(?:able)?)\s*[:=]?\s*(\d[\d.,]*)(?!\s*%)/gi, (m, n) => { L.qtys.push(parseNum(n)); });
@@ -1794,7 +1809,7 @@ const Parser = (() => {
 
     cut(/\bgrade\s*[:\-]?\s*(a\+{0,2}|ab|a\/b|b\+?|bc|b\/c|c\+?|d)(?![a-z])/gi, (m, g) => { L.grade = g.toUpperCase().replace('/', ''); });
     cut(/(?<![a-z])['"]?(a\+{0,2}|ab|a\/b|b\+?|bc|b\/c|c\+?|d)['"]?\s*-?\s*(?:grade|grd)\b/gi, (m, g) => { L.grade = L.grade || g.toUpperCase().replace('/', ''); });
-    cut(/\bas[\s-]?is\b/gi, () => { if (L.grade) { if (!L.cond.includes('ASIS')) L.cond.push('ASIS'); } else L.grade = 'ASIS'; });
+    cut(/\bas[\s-]?is(?:\s*(\+)|\s+(plus)\b|\b)/gi, (m, plus, word) => { const g = plus || word ? 'ASIS+' : 'ASIS'; if (L.grade && L.grade !== g) { if (!L.cond.includes(g)) L.cond.push(g); } else L.grade = g; });
     for (const [label, re] of CONDS) cut(re, () => { if (!L.cond.includes(label)) L.cond.push(label); });
     if (L.cond.includes('Brand New')) L.cond = L.cond.filter(c => c !== 'New');
     for (const [label, re] of SIMS) cut(re, () => { L.sim = L.sim && L.sim !== label ? L.sim + ' + ' + label : label; });
@@ -1838,11 +1853,12 @@ const Parser = (() => {
     if (L.notes && !L.model) p.notes.push(L.notes);
     if (L.currency) p.currency = p.currency || L.currency;
     if (L.moq != null) p.moq = L.moq;
+    p.packs.push(...L.packs);
     p.src.push(L.raw.trim());
   }
   function start(L, ctx) {
     const m = L.model || { name: '', brand: '', family: '', series: '' };
-    const p = { src: [], model: m.name, brand: m.brand, family: m.family, series: m.series, guess: L.guess, pairs: [], S: [], P: [], Q: [], regions: [], grade: '', cond: [], sim: '', battery: '', color: '', ram: '', notes: [], currency: null, moq: null };
+    const p = { src: [], model: m.name, brand: m.brand, family: m.family, series: m.series, guess: L.guess, pairs: [], S: [], P: [], Q: [], packs: [], regions: [], grade: '', cond: [], sim: '', battery: '', color: '', ram: '', notes: [], currency: null, moq: null };
     if (L.notes && L.model) p.notes.push(L.notes);
     absorb(p, L);
     if (ctx) {
@@ -1873,11 +1889,20 @@ const Parser = (() => {
       else if (variants.length === 1 && Q.length === 1 && variants[0].qty == null) variants[0].qty = Q[0];
       else qty = Q[0];
     }
+    // ASIS / ASIS+ only exist for Apple; other brands use their own grades
+    let grade = p.grade, gradeCheck = false; let cond = p.cond.slice();
+    if (knownBrand(p) && !isApple(p)) { if (isPackGrade(grade)) { grade = ''; gradeCheck = true; } cond = cond.filter(c => !isPackGrade(c)); }
+    // quantities written in packs: ASIS packs hold 20 pcs
+    if (p.packs.length) {
+      const pack = packSizeOf({ ...p, grade });
+      if (pack) { const pcs = p.packs.map(n => n * pack); if (qty == null && !variants.some(v => v.qty != null)) { if (variants.length === 1) variants[0].qty = pcs[0]; else qty = pcs.reduce((a, b) => a + b, 0); } }
+      else p.notes.push(p.packs.map(n => `${n} packs`).join(', ')); // pack size unknown for other grades
+    }
     const src = p.src.join('\n').toLowerCase().replace(/\s+/g, ' ').trim();
     return {
       id: 'p' + hashStr(src + '#' + idx), src, include: true,
       model: p.model, brand: p.brand, family: p.family, series: p.series || p.brand || 'Other stock',
-      region: p.regions.join(' / '), grade: p.grade, condition: p.cond.filter(c => c !== 'ASIS' || p.grade !== 'ASIS').join(' · '),
+      region: p.regions.join(' / '), grade, gradeCheck, condition: cond.filter(c => c !== grade).join(' · '),
       battery: p.battery, sim: p.sim, color: p.color, ram: p.ram, notes: p.notes.join(' · '),
       currency: p.currency || defCur, qty, moq: p.moq, variants,
       needsReview: !p.model || p.guess, imageId: null, deviceColor: '',
@@ -1945,12 +1970,12 @@ const Parser = (() => {
         if (v.storage && price) parts.push(`${v.storage} — ${price}`);
         else if (v.storage) parts.push(v.storage);
         else if (price) parts.push(price);
-        if (v.qty != null && show.qty !== false) parts.push(`${v.qty} pcs`);
+        if (v.qty != null && show.qty !== false) parts.push(qtyText(v.qty, packSizeOf(p)));
         return parts.join(' · ');
       }).filter(Boolean);
       lines.push(...rows);
-      if (p.qty != null && show.qty !== false) lines.push(`${p.qty} pcs`);
-      const meta = [p.region, gradeLabel(p.grade), p.condition, batteryLabel(p.battery), p.sim, p.color, p.ram && p.ram + ' RAM'].filter(Boolean);
+      if (p.qty != null && show.qty !== false) lines.push(qtyText(p.qty, packSizeOf(p)));
+      const meta = [p.region, gradeLabel(p.grade), packSizeOf(p) && `Packs of ${PACK_SIZE}`, p.condition, batteryLabel(p.battery), p.sim, p.color, p.ram && p.ram + ' RAM'].filter(Boolean);
       if (meta.length) lines.push(meta.join(' | '));
       if (p.notes) lines.push(p.notes);
       return lines.join('\n');
@@ -2824,6 +2849,7 @@ function drawIcon(ctx, name, x, y, size, color, lw = 2) {
   ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke(p); ctx.restore();
 }
 const fmtQtyN = n => `${Number(n).toLocaleString('en-US')} pcs`;
+const qtyOf = v => v.qtyLabel || fmtQtyN(v.qty);
 const modelKey = m => String(m || '').toLowerCase().replace(/\s+/g, ' ').trim();
 const alignX = (al, x, w, cw) => al === 'center' ? x + (w - cw) / 2 : al === 'right' ? x + w - cw : x;
 const anchorX = (al, x, w) => al === 'center' ? x + w / 2 : al === 'right' ? x + w : x;
@@ -3014,6 +3040,8 @@ function prepProduct(p, project, P) {
   const chips = [];
   if (sh.region && p.region) chips.push(p.region);
   if (sh.grade && p.grade) chips.push(gradeLabel(p.grade));
+  const pack = packSizeOf(p);
+  if (pack && (sh.grade || sh.qty)) chips.push(`Packs of ${pack}`);
   if (sh.grade && p.condition) chips.push(...p.condition.split(' · ').filter(Boolean));
   if (sh.battery && p.battery) chips.push(batteryLabel(p.battery));
   if (sh.sim && p.sim) chips.push(p.sim);
@@ -3025,8 +3053,8 @@ function prepProduct(p, project, P) {
     storage: (v.storage || '').trim(),
     price: sh.price && v.price != null && v.price !== '' && !isNaN(v.price) ? Money.fmt(Money.apply(+v.price, mk), p.currency) : '',
     qty: sh.qty && v.qty != null && v.qty !== '' ? +v.qty : null,
-  }));
-  if (variants.length === 1 && variants[0].qty != null && qty == null) { qty = variants[0].qty; variants[0].qty = null; }
+  })).map(v => ({ ...v, qtyLabel: v.qty != null ? qtyText(v.qty, pack) : '' }));
+  if (variants.length === 1 && variants[0].qty != null && qty == null) { qty = variants[0].qty; variants[0].qty = null; variants[0].qtyLabel = ''; }
   variants = variants.filter(v => v.storage || v.price || v.qty != null);
   // picture: the user's own upload, else a real photo of this model in the listed colour, else the drawn device
   const pic = sh.images ? productPic(p, project) : null;
@@ -3038,7 +3066,7 @@ function prepProduct(p, project, P) {
   const swatches = sh.color ? cols.filter(c => c.hex).map(c => c.hex).slice(0, 6) : [];
   const firstHex = cols.find(c => c.hex)?.hex;
   const color = p.deviceColor || firstHex || Devices.colorFor(p, P.c.darkBg);
-  return { id: p.id, flags, swatches, marks: flags.length + swatches.length, title: p.model || 'Product', chips, variants, qty: qty != null ? fmtQtyN(qty) : '', notes: sh.notes ? (p.notes || '') : '', kind: Devices.kindFor(p), color, img, photo, src: p, extra };
+  return { id: p.id, flags, swatches, marks: flags.length + swatches.length, title: p.model || 'Product', chips, variants, qty: qty != null ? qtyText(qty, pack) : '', notes: sh.notes ? (p.notes || '') : '', kind: Devices.kindFor(p), color, img, photo, src: p, extra };
 }
 function prepare(project) {
   const W = project.format.w, H = project.format.h;
@@ -3405,12 +3433,12 @@ function cardModel(P, p, w, s, st) {
     const rFont = F(st.rowW || 500, rSize, st.rowFamily || P.ff.body), sqFont = F(500, rSize * 0.8, st.rowFamily || P.ff.body);
     let pFont = F(st.priceW || 700, pSize, st.priceFamily || P.ff.body); const pLs = (st.priceLs ?? -0.01) * pSize;
     if (big) {
-      const v = p.variants[0]; const left = [v.storage, v.qty != null ? fmtQtyN(v.qty) : ''].filter(Boolean).join('  ·  ');
+      const v = p.variants[0]; const left = [v.storage, v.qty != null ? qtyOf(v) : ''].filter(Boolean).join('  ·  ');
       const fs = fitLine(v.price, st.priceFamily || P.ff.body, st.priceW || 700, pSize, cw, st.priceLs ?? -0.01); pFont = F(st.priceW || 700, fs, st.priceFamily || P.ff.body);
       rows = { big: true, y: h + 16 * u, left, leftH: left ? rSize * 1.35 : 0, rFont, pFont, pSize: fs, pLs: (st.priceLs ?? -0.01) * fs };
       h += 16 * u + rows.leftH + fs * 1.08;
     } else {
-      const need = Math.max(...p.variants.map(v => { const lab = v.storage || (v.price && v.qty == null ? 'Price' : ''); return (lab ? mt(lab, rFont) + 14 * u : 0) + (v.qty != null ? mt(fmtQtyN(v.qty), sqFont) : 0) + (v.price ? mt(v.price, pFont, pLs) + 20 * u : 0); }));
+      const need = Math.max(...p.variants.map(v => { const lab = v.storage || (v.price && v.qty == null ? 'Price' : ''); return (lab ? mt(lab, rFont) + 14 * u : 0) + (v.qty != null ? mt(qtyOf(v), sqFont) : 0) + (v.price ? mt(v.price, pFont, pLs) + 20 * u : 0); }));
       const stacked = need > cw;
       const rowH = stacked ? rSize * 1.3 + pSize * 1.25 + 6 * u : Math.max(rSize, pSize) * 1.45;
       rows = { big: false, stacked, y: h + 14 * u, rowH, rSize, rFont, sqFont, pFont, pSize, pLs, sep: p.variants.length > 1 };
@@ -3449,14 +3477,14 @@ function cardModel(P, p, w, s, st) {
           if (rows.stacked) {
             const y1 = ry + 3 * u + rows.rSize * 0.65; let lx = cx;
             if (v.storage) { drawText(ctx, v.storage, lx, y1, { font: rows.rFont, color: st.rowColor || P.c.text }); lx += mt(v.storage, rows.rFont) + 12 * u; }
-            if (v.qty != null) drawText(ctx, fmtQtyN(v.qty), lx, y1, { font: rows.sqFont, color: P.c.muted });
+            if (v.qty != null) drawText(ctx, qtyOf(v), lx, y1, { font: rows.sqFont, color: P.c.muted });
             if (v.price) drawText(ctx, v.price, cx, ry + 3 * u + rows.rSize * 1.3 + rows.pSize * 0.6, { font: rows.pFont, color: st.priceColor || P.c.accent, ls: rows.pLs });
             return;
           }
           let lx = cx;
           const label = v.storage || (v.price && !v.qty ? 'Price' : '');
           if (label) { drawText(ctx, label, lx, cyy, { font: rows.rFont, color: v.storage ? (st.rowColor || P.c.text) : P.c.muted }); lx += mt(label, rows.rFont) + 14 * u; }
-          if (v.qty != null) drawText(ctx, fmtQtyN(v.qty), lx, cyy, { font: rows.sqFont, color: P.c.muted });
+          if (v.qty != null) drawText(ctx, qtyOf(v), lx, cyy, { font: rows.sqFont, color: P.c.muted });
           if (v.price) drawText(ctx, v.price, x + w - pad, cyy, { font: rows.pFont, color: st.priceColor || P.c.accent, align: 'right', ls: rows.pLs });
         });
       }
@@ -3526,12 +3554,12 @@ function DropGroups(P) {
       const v = p.variants[0] || {};
       L.push({ t: [p.title, v.storage].filter(Boolean).join(' '), k: 'main' });
       const segs = []; if (v.price) segs.push({ t: v.price, k: 'price' });
-      const q = p.qty || (v.qty != null ? fmtQtyN(v.qty) : ''); if (q) segs.push({ t: q.toUpperCase(), k: 'sub' });
+      const q = p.qty || (v.qty != null ? qtyOf(v) : ''); if (q) segs.push({ t: q.toUpperCase(), k: 'sub' });
       p.extra.forEach(e => segs.push({ t: e.toUpperCase(), k: 'sub' }));
       if (segs.length) L.push({ segs, k: 'segs' });
     } else {
       L.push({ t: p.title, k: 'main' });
-      p.variants.forEach(v => { const segs = []; if (v.storage) segs.push({ t: v.storage, k: 'var' }); if (v.price) segs.push({ t: v.price, k: 'price' }); if (v.qty != null) segs.push({ t: fmtQtyN(v.qty).toUpperCase(), k: 'sub' }); if (segs.length) L.push({ segs, k: 'segs' }); });
+      p.variants.forEach(v => { const segs = []; if (v.storage) segs.push({ t: v.storage, k: 'var' }); if (v.price) segs.push({ t: v.price, k: 'price' }); if (v.qty != null) segs.push({ t: qtyOf(v).toUpperCase(), k: 'sub' }); if (segs.length) L.push({ segs, k: 'segs' }); });
       const tail = [p.qty ? p.qty.toUpperCase() : '', ...p.extra.map(e => e.toUpperCase())].filter(Boolean);
       if (tail.length) L.push({ segs: tail.map(t => ({ t, k: 'sub' })), k: 'segs' });
     }
@@ -3656,7 +3684,7 @@ function RowList(P) {
     const price = single?.price || '';
     const pw = price ? mt(price, pF) + 24 * u : 0;
     const tLines = wrapText(p.title, tF, w - pw).slice(0, 2);
-    const metaParts = [single?.storage, ...p.chips, p.qty || (single?.qty != null ? fmtQtyN(single.qty) : '')].filter(Boolean);
+    const metaParts = [single?.storage, ...p.chips, p.qty || (single?.qty != null ? qtyOf(single) : '')].filter(Boolean);
     const fh = 27 * u * 0.95, fw = Marks.w(p, fh, 6 * u), ind = fw ? fw + 12 * u : 0;
     const metaLines = metaParts.length ? wrapText(metaParts.join('  ·  '), mF, w - ind).slice(0, 2) : fw ? [''] : [];
     const multi = p.variants.length > 1 ? p.variants : [];
@@ -3670,7 +3698,7 @@ function RowList(P) {
         if (price) drawText(ctx, price, x + w, yy + 46 * u * 0.575, { font: pF, color: P.c.accent === P.c.text ? P.c.text : P.c.accent, align: 'right' });
         yy += tLines.length * 46 * u * 1.15;
         if (metaLines.length) { yy += 8 * u; if (fw) Marks.row(ctx, p, x, yy + 27 * u * 0.67, fh, 6 * u); metaLines.forEach(ln => { drawText(ctx, ln, x + ind, yy + 27 * u * 0.67, { font: mF, color: P.c.muted }); yy += 27 * u * 1.35; }); }
-        if (multi.length) { yy += 14 * u; multi.forEach(v => { const cy = yy + 33 * u * 0.775; drawText(ctx, v.storage || 'Price', x, cy, { font: vF, color: v.storage ? P.c.text : P.c.muted }); if (v.qty != null) drawText(ctx, fmtQtyN(v.qty), x + mt(v.storage || 'Price', vF) + 18 * u, cy, { font: mF, color: P.c.muted }); if (v.price) drawText(ctx, v.price, x + w, cy, { font: vpF, color: P.c.text, align: 'right' }); yy += 33 * u * 1.55; }); }
+        if (multi.length) { yy += 14 * u; multi.forEach(v => { const cy = yy + 33 * u * 0.775; drawText(ctx, v.storage || 'Price', x, cy, { font: vF, color: v.storage ? P.c.text : P.c.muted }); if (v.qty != null) drawText(ctx, qtyOf(v), x + mt(v.storage || 'Price', vF) + 18 * u, cy, { font: mF, color: P.c.muted }); if (v.price) drawText(ctx, v.price, x + w, cy, { font: vpF, color: P.c.text, align: 'right' }); yy += 33 * u * 1.55; }); }
         if (p.notes) { yy += 8 * u; drawText(ctx, p.notes, x, yy + 25 * u * 0.65, { font: F(400, 25 * u, fam), color: P.c.faint }); }
       },
     };
@@ -3833,7 +3861,7 @@ function SpotlightBlock(P) {
     const tF = F(800, 62 * u, fam), tLines = wrapText(hero.title, tF, cw).slice(0, 2), tLh = 62 * u * 1.08;
     const mF = F(500, 26 * u, fam);
     const single = hero.variants.length <= 1 ? hero.variants[0] : null;
-    const pre = single ? [single.storage, hero.qty || (single.qty != null ? fmtQtyN(single.qty) : '')].filter(Boolean).join('  ·  ').toUpperCase() : (hero.qty || '').toUpperCase();
+    const pre = single ? [single.storage, hero.qty || (single.qty != null ? qtyOf(single) : '')].filter(Boolean).join('  ·  ').toUpperCase() : (hero.qty || '').toUpperCase();
     const preF = F(700, 26 * u, fam);
     const pFam = P.ff.display, pW = P.dw(800);
     const pSize = single && single.price ? fitLine(single.price, pFam, pW, 150 * u, cw, -0.02) : 0;
@@ -3868,7 +3896,7 @@ function SpotlightBlock(P) {
           A.vRows.forEach((v, i) => {
             const ry = y + A.rowsY + i * A.vH, cy = ry + A.vH / 2;
             if (i) { ctx.fillStyle = rgba(P.c.text, 0.12); ctx.fillRect(cx, ry, w - A.pad * 2, Math.max(1, 1.2 * P.u)); }
-            drawText(ctx, [v.storage, v.qty != null ? fmtQtyN(v.qty) : ''].filter(Boolean).join('  ·  ') || 'Price', cx, cy, { font: F(600, 34 * u, fam), color: P.c.text });
+            drawText(ctx, [v.storage, v.qty != null ? qtyOf(v) : ''].filter(Boolean).join('  ·  ') || 'Price', cx, cy, { font: F(600, 34 * u, fam), color: P.c.text });
             if (v.price) drawText(ctx, v.price, x + w - A.pad, cy, { font: F(A.pW, 46 * u, A.pFam), color: P.c.accent, align: 'right' });
           });
         },
@@ -3911,7 +3939,7 @@ function TileGrid(P) {
     const single = p.variants.length === 1 ? p.variants[0] : null;
     const pSize = single && single.price ? fitLine(single.price, P.ff.display, P.dw(800), 56 * u, cw, -0.02) : 0;
     const vRows = single ? [] : p.variants; const vH = 40 * u;
-    const sub = single ? [single.storage, single.qty != null ? fmtQtyN(single.qty) : ''].filter(Boolean).join('  ·  ') : '';
+    const sub = single ? [single.storage, single.qty != null ? qtyOf(single) : ''].filter(Boolean).join('  ·  ') : '';
     let h = imgH + pad * 0.8 + tLines.length * tLh;
     const metaY = h + 6 * u; if (hasMeta) h += 6 * u + 30 * u;
     const subY = h + 6 * u; if (sub) h += 6 * u + 30 * u;
@@ -3964,7 +3992,7 @@ function TileGrid(P) {
               if (m.hasMeta) drawMeta(ctx, P, p, cx, ey + m.metaY + 15 * u, m.mF, P.c.muted, 21 * u, u, m.cw);
               if (m.sub) drawText(ctx, m.sub, cx, ey + m.subY + 15 * u, { font: F(600, 24 * u, fam), color: P.c.text });
               if (m.pSize) drawText(ctx, m.single.price, cx, ey + m.priceY + m.pSize * 0.55, { font: F(P.dw(800), m.pSize, P.ff.display), color: P.c.accent, ls: -0.02 * m.pSize });
-              m.vRows.forEach((v, k) => { const cy = ey + m.rowsY + k * m.vH + m.vH / 2; drawText(ctx, [v.storage, v.qty != null ? fmtQtyN(v.qty) : ''].filter(Boolean).join(' · ') || 'Price', cx, cy, { font: F(600, 24 * u, fam), color: P.c.text }); if (v.price) drawText(ctx, v.price, cx + m.cw, cy, { font: F(P.dw(800), 30 * u, P.ff.display), color: P.c.accent, align: 'right' }); });
+              m.vRows.forEach((v, k) => { const cy = ey + m.rowsY + k * m.vH + m.vH / 2; drawText(ctx, [v.storage, v.qty != null ? qtyOf(v) : ''].filter(Boolean).join(' · ') || 'Price', cx, cy, { font: F(600, 24 * u, fam), color: P.c.text }); if (v.price) drawText(ctx, v.price, cx + m.cw, cy, { font: F(P.dw(800), 30 * u, P.ff.display), color: P.c.accent, align: 'right' }); });
             },
           });
         });
@@ -3981,8 +4009,8 @@ function LeaderList(P) {
     const u = P.u * s * P.bs; const single = p.variants.length <= 1 ? p.variants[0] : null;
     const lines = [];
     if (single) lines.push({ left: [p.title, single.storage].filter(Boolean).join(' '), price: single.price || '', main: true });
-    else { lines.push({ left: p.title, price: '', main: true }); p.variants.forEach(v => lines.push({ left: [v.storage, v.qty != null ? fmtQtyN(v.qty) : ''].filter(Boolean).join('  ·  ') || 'Price', price: v.price || '', main: false })); }
-    const extra = [...p.chips, p.qty, single && single.qty != null ? fmtQtyN(single.qty) : ''].filter(Boolean);
+    else { lines.push({ left: p.title, price: '', main: true }); p.variants.forEach(v => lines.push({ left: [v.storage, v.qty != null ? qtyOf(v) : ''].filter(Boolean).join('  ·  ') || 'Price', price: v.price || '', main: false })); }
+    const extra = [...p.chips, p.qty, single && single.qty != null ? qtyOf(single) : ''].filter(Boolean);
     const lh = l => (l.main ? 52 : 42) * u;
     const h = lines.reduce((a, l) => a + lh(l), 0) + ((extra.length || p.marks) ? 34 * u : 0) + 24 * u;
     return { u, lines, extra, lh, h };
@@ -4991,13 +5019,22 @@ function pictureSection(p) {
       </div>
     </div>`;
 }
+// smart stock checks shown on each product: grade rules and packs of 20
+function stockWarnings(p) {
+  const out = [];
+  if (isPackGrade(p.grade) && knownBrand(p) && !isApple(p)) out.push(['Apple-only grade', 'ASIS and ASIS+ are Apple grades. Set this brand’s own grade, e.g. A+, A, B or C.']);
+  else if (p.gradeCheck && !p.grade) out.push(['Set grade', 'The list said ASIS, but ASIS is Apple-only. Choose this brand’s grade.']);
+  const pack = packSizeOf(p), n = totalQty(p);
+  if (pack && n && n % pack) out.push([`Not packs of ${pack}`, `${p.grade} ships in packs of ${pack} pcs. ${n} isn’t a multiple of ${pack}.`]);
+  return out;
+}
 function productHead(p, i) {
   return `<div class="prod-head" data-toggle-open>
     <input type="checkbox" class="cbox" data-include ${p.include !== false ? 'checked' : ''} aria-label="Include ${esc(p.model)}">
     <div class="prod-thumb">${thumbFor(p)}</div>
     <div class="prod-main"><div class="prod-title"><span>${esc(p.model || 'Unknown model')}</span>${p.needsReview ? `<span class="chip warn">Check model</span>` : ''}</div>
       <div class="prod-sub">${esc(variantSummary(p))}</div>
-      <div class="chips">${[p.region, gradeLabel(p.grade), p.condition, p.battery && batteryLabel(p.battery), p.sim].filter(Boolean).map(c => `<span class="chip">${esc(c)}</span>`).join('')}</div></div>
+      <div class="chips">${[p.region, gradeLabel(p.grade), packSizeOf(p) && `Packs of ${PACK_SIZE}`, p.condition, p.battery && batteryLabel(p.battery), p.sim].filter(Boolean).map(c => `<span class="chip">${esc(c)}</span>`).join('')}${stockWarnings(p).map(w => `<span class="chip warn" title="${esc(w[1])}">${esc(w[0])}</span>`).join('')}</div></div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
       <span class="icon-btn sm prod-grip" data-grip title="Drag to reorder" aria-label="Drag to reorder">${icon('grip')}</span>
       <span class="prod-chev">${icon('chevron-down', 'sm')}</span>
@@ -5012,7 +5049,7 @@ function productBody(p) {
       ${field(pid, 'model', 'Model', p.model, 'iPhone 17 Pro')}
       <div class="field"><label class="field-label" for="pf-${pid}-currency">Currency</label><select class="select" id="pf-${pid}-currency" data-pf="currency">${CURRENCIES.map(c => `<option ${c === p.currency ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
       ${field(pid, 'region', 'Region / spec', p.region, 'EU', 'dl-region')}
-      ${field(pid, 'grade', 'Grade', p.grade, 'ASIS', 'dl-grade')}
+      ${field(pid, 'grade', 'Grade', p.grade, isApple(p) || !knownBrand(p) ? 'ASIS' : 'A+', isApple(p) || !knownBrand(p) ? 'dl-grade' : 'dl-grade-other')}
       ${field(pid, 'condition', 'Condition', p.condition, 'Refurbished', 'dl-cond')}
       ${field(pid, 'battery', 'Battery', p.battery, '100%')}
       ${field(pid, 'sim', 'SIM', p.sim, 'eSIM', 'dl-sim')}
@@ -5044,6 +5081,7 @@ function renderProducts() {
 function refreshProductHead(item, p) {
   const head = $('.prod-head', item); const tmp = h(productHead(p));
   $('.prod-title', head).innerHTML = $('.prod-title', tmp).innerHTML; $('.prod-sub', head).innerHTML = $('.prod-sub', tmp).innerHTML; $('.chips', head).innerHTML = $('.chips', tmp).innerHTML;
+  const gi = $('[data-pf="grade"]', item); if (gi) { const apple = isApple(p) || !knownBrand(p); gi.setAttribute('list', apple ? 'dl-grade' : 'dl-grade-other'); gi.placeholder = apple ? 'ASIS' : 'A+'; }
 }
 function findProduct(el) { const item = el.closest('.prod-item'); return item ? { item, p: App.project.products.find(x => x.id === item.dataset.pid) } : {}; }
 function bindProducts() {
@@ -6128,7 +6166,7 @@ async function buildBrandAssets() {
 async function init() {
   hydrateIcons();
   await buildBrandAssets();
-  document.body.insertAdjacentHTML('beforeend', `<datalist id="dl-region">${['EU', 'UK', 'US', 'Canada', 'HK', 'China', 'Japan', 'UAE', 'Middle East', 'India', 'Global', 'Mixed spec'].map(v => `<option value="${v}">`).join('')}</datalist><datalist id="dl-grade">${['ASIS', 'A+', 'A', 'AB', 'B', 'C'].map(v => `<option value="${v}">`).join('')}</datalist><datalist id="dl-cond">${['Brand New', 'Sealed', 'Non-active', 'Activated', 'Refurbished', 'CPO', 'Used', 'Open Box', 'Like New', 'Unlocked'].map(v => `<option value="${v}">`).join('')}</datalist><datalist id="dl-sim">${['eSIM', 'Dual SIM', 'Physical SIM'].map(v => `<option value="${v}">`).join('')}</datalist>`);
+  document.body.insertAdjacentHTML('beforeend', `<datalist id="dl-region">${['EU', 'UK', 'US', 'Canada', 'HK', 'China', 'Japan', 'UAE', 'Middle East', 'India', 'Global', 'Mixed spec'].map(v => `<option value="${v}">`).join('')}</datalist><datalist id="dl-grade-other">${['A+', 'A', 'AB', 'B', 'BC', 'C', 'D'].map(v => `<option value="${v}">`).join('')}</datalist><datalist id="dl-grade">${['ASIS', 'ASIS+', 'A+', 'A', 'AB', 'B', 'C'].map(v => `<option value="${v}">`).join('')}</datalist><datalist id="dl-cond">${['Brand New', 'Sealed', 'Non-active', 'Activated', 'Refurbished', 'CPO', 'Used', 'Open Box', 'Like New', 'Unlocked'].map(v => `<option value="${v}">`).join('')}</datalist><datalist id="dl-sim">${['eSIM', 'Dual SIM', 'Physical SIM'].map(v => `<option value="${v}">`).join('')}</datalist>`);
   App.settings = loadSettings(); applyUiTheme();
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyUiTheme);
   await refreshUploads();
@@ -6416,7 +6454,7 @@ const TOUR_STEPS = [
 
   // ---- 1 Stock
   { ch: '1 · Stock', sel: '.stock-box', view: 'studio', step: 'stock', title: 'Paste the stock list',
-    body: `<p>Paste the list exactly as the supplier sent it: WhatsApp, Excel, an email, or that list someone typed out at 2am. It reads lines like <code>17 PM 256//512//1tb EU ASIS / 1090//1170//1260EUR</code> and works out the model, storage, grade, region, battery, SIM, colour, price and quantity while you type.</p>`,
+    body: `<p>Paste the list exactly as the supplier sent it: WhatsApp, Excel, an email, or that list someone typed out at 2am. It reads lines like <code>17 PM 256//512//1tb EU ASIS / 1090//1170//1260EUR</code> and works out the model, storage, grade, region, battery, SIM, colour, price and quantity while you type.</p><p>It knows the house rules too: <b>ASIS</b> and <b>ASIS+</b> are Apple-only and come in <b>packs of 20</b>, so “x 15 packs” becomes 300 pcs.</p>`,
     tip: 'No need to tidy the list first. Tidying is literally its job.' },
   { ch: '1 · Stock', sel: '.stock-tools', view: 'studio', step: 'stock', title: 'Paste, Sample, Clear',
     body: `<p><b>Paste</b> grabs whatever is on your clipboard. <b>Sample</b> loads demo stock, perfect for showing the boss how clever we are. <b>Clear</b> empties the box (Undo brings it back).</p><p>The counter on the right shows how many lines it found.</p>` },
@@ -6682,6 +6720,8 @@ const TIPS = [
   ['[data-action="add-product"]', '<b>Add product</b> Add one by hand, for stock that isn’t in the pasted list.'],
   ['[data-action="bulk"]', '<b>Several posters</b> Splits a long list into posters by series, one per product, or in groups.'],
   ['[data-include]', '<b>On the poster</b> Untick to hide this product without deleting it.'],
+  ['[data-pf="grade"]', '<b>Grade</b> ASIS and ASIS+ are Apple-only and always ship in packs of 20 pcs. Other brands use their own grades: A+, A, AB, B, C.'],
+  ['.chip.warn', '<b>Check this</b> Hover the label to see what needs fixing.'],
   ['[data-grip]', '<b>Reorder</b> Drag to move. The first product is the star in hero templates.'],
   ['.prod-head', '<b>Product</b> Click to open and edit: model, specs, storage rows, prices, colours and picture.'],
   ['.swchip', '<b>Colour</b> Official colour for this model. Tap to add it to or remove it from the poster.'],

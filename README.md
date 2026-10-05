@@ -2,7 +2,7 @@
 
 Turn a pasted B2B stock list into polished stock posters for WhatsApp Status, Instagram, LinkedIn and more.
 
-**Live:** https://deepak-mobi-hub.github.io/repocket-poster-studio/
+**Live:** https://deepak-repocketb2btrading.github.io/repocket-poster-studio/
 
 ## What it does
 

@@ -385,8 +385,10 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .studio[data-step="template"] .panel{border-right:0}
 .studio[data-step="template"] .pane[data-pane="template"]{width:100%;max-width:1240px;margin:0 auto}
 .studio[data-step="template"] .pane[data-pane="template"] .pane-head{text-align:center}
-.studio[data-step="template"] .panel-foot{justify-content:center;gap:12px}
-.studio[data-step="template"] .panel-foot .btn{min-width:180px}
+@media (min-width:900px){
+  .studio[data-step="template"] .panel-foot{justify-content:center;gap:12px}
+  .studio[data-step="template"] .panel-foot .btn{min-width:180px}
+}
 .tpl-pick.dense .tp-body b{font-size:8.5px;line-height:10.5px;letter-spacing:-.02em}
 .tpl-pick.dense .tp-del{width:18px;height:18px}
 .tpl-pick.dense .tp-del svg,.tpl-pick.dense .tp-check svg{width:10px;height:10px}
@@ -5495,11 +5497,11 @@ function renderTplPick() {
   $('#tpl-restore').innerHTML = hidden.length ? `<button class="link-btn" data-action="tpl-restore">${icon('refresh', 'sm')}Restore ${hidden.length} deleted template${hidden.length === 1 ? '' : 's'}</button>` : '';
   requestAnimationFrame(fitTplPick);
 }
-// always 5 templates per row, as big as the width allows (bigger cards on a computer, scrolls if needed)
+// big template cards: 2 per row on phones, 3 on tablets, 5 on computers (the list scrolls when needed)
 function fitTplPick() {
   const box = $('#tpl-pick'); if (!box || box.offsetParent === null) return;
   const f = App.project.format; box.style.setProperty('--tp-ar', `${f.w} / ${f.h}`);
-  box.style.maxWidth = ''; const W = box.clientWidth, cols = 5, gap = W < 420 ? 6 : W < 900 ? 10 : 16;
+  box.style.maxWidth = ''; const W = box.clientWidth, cols = W < 520 ? 2 : W < 900 ? 3 : 5, gap = W < 520 ? 12 : W < 900 ? 12 : 16;
   const gridW = Math.min(W, 1180); box.style.maxWidth = gridW + 'px';
   const cw = (gridW - gap * (cols - 1)) / cols;
   box.style.setProperty('--tp-cols', cols); box.style.setProperty('--tp-gap', gap + 'px');

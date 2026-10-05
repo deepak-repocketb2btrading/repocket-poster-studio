@@ -1,5 +1,5 @@
 /* RePocket Poster Studio service worker: offline app shell + notification clicks */
-const VERSION = 'rps-20261005194925';
+const VERSION = 'rps-20261005211506';
 const RUNTIME = 'rps-runtime';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 
@@ -20,7 +20,8 @@ self.addEventListener('fetch', e => {
 
   // the app page: always try the network first so updates arrive, fall back to the saved copy offline
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req)
+    // no-cache: check with the server every time (cheap when nothing changed), so a new version shows up straight away
+    e.respondWith(fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
       .then(r => { if (r.ok) { const copy = r.clone(); caches.open(VERSION).then(c => c.put('./index.html', copy)); } return r; })
       .catch(() => caches.match('./index.html').then(r => r || caches.match('./'))));
     return;

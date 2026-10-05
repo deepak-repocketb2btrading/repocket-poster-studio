@@ -339,6 +339,31 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .vt-row .input{height:32px;font-size:13px;padding:0 8px;font-family:var(--font-mono)}
 .prod-thumb img.ph{object-fit:cover}
 .bg-badge.match{background:rgba(11,94,215,.88);color:#fff}
+/* ---------- template home ---------- */
+.steps{grid-template-columns:repeat(5,1fr)}
+.steps .step{gap:6px;font-size:12.5px}
+.tpl-pick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tpick{position:relative;display:flex;flex-direction:column;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s;outline:none}
+.tpick:hover{box-shadow:var(--shadow-md)}
+.tpick:focus-visible{box-shadow:0 0 0 3px var(--ring)}
+.tpick.active{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
+.tpick:active{transform:scale(.985)}
+.tp-media{position:relative;aspect-ratio:9/14;display:grid;place-items:center;padding:10px;background:var(--sunken);background-image:radial-gradient(var(--stage-dot) 1px,transparent 1.2px);background-size:12px 12px}
+.tp-media canvas{max-width:100%;max-height:100%;border-radius:4px;box-shadow:var(--shadow-md)}
+.tp-check{position:absolute;left:8px;top:8px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;box-shadow:0 0 0 2px var(--surface);opacity:0;transform:scale(.6);transition:opacity .15s,transform .15s}
+.tpick.active .tp-check{opacity:1;transform:none}
+.tp-check svg{width:14px;height:14px}
+.tp-del{position:absolute;right:8px;top:8px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.94);color:#a12a2e;box-shadow:0 2px 8px rgba(0,0,0,.22);opacity:.9;transition:opacity .15s,transform .15s}
+.tp-del:hover{opacity:1;transform:scale(1.06);background:#fff}
+.tp-del svg{width:15px;height:15px}
+.tp-body{display:flex;flex-direction:column;gap:3px;padding:10px 12px 12px}
+.tp-body b{font-size:14px;font-weight:650}
+.tp-body span{font-size:12px;line-height:1.4;color:var(--text-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tp-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tp-tags i{font-style:normal;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--surface-2);border:1px solid var(--line);color:var(--text-2)}
+.tpick.active .tp-tags i{border-color:var(--accent-soft)}
+.tpl-restore{display:flex;justify-content:center;margin-top:14px}
+.tpl-restore .link-btn{display:inline-flex;align-items:center;gap:6px}
 /* ---------- phone step flow ---------- */
 .step[data-step="preview"],.peek-btn,.phone-only{display:none}
 .share-head h2{font-size:20px;letter-spacing:-.01em;text-wrap:balance}
@@ -907,6 +932,16 @@ html.is-app,html.is-app body{overscroll-behavior:none}
   .peek-btn svg{width:18px;height:18px}
   @keyframes peekIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
 }
+@media (max-width:899px){
+  .studio[data-step="template"] .stage{display:none}
+  .studio[data-step="template"] .steps{top:52px}
+  .tpl-pick{gap:10px}
+}
+@media (max-width:520px){
+  .steps{padding:0 4px}
+  .step{gap:5px}
+  .step:not(.active) .step-lbl{display:none}
+}
 @media (max-width:420px){.bar-install span{display:none}.bar-install{padding:0 9px}}
 @media (max-width:1279px){.sb-tour .tour-pill{display:none}}
 @media (max-width:899px){.bar-tour{display:inline-flex}}
@@ -970,15 +1005,23 @@ html.is-app,html.is-app body{overscroll-behavior:none}
           <!-- Left: controls -->
           <aside class="panel" aria-label="Poster controls">
             <div class="steps" role="tablist">
-              <button class="step" data-step="stock" role="tab"><span class="step-num">1</span><span class="step-lbl">Stock</span></button>
-              <button class="step" data-step="products" role="tab"><span class="step-num">2</span><span class="step-lbl">Review</span></button>
-              <button class="step" data-step="design" role="tab"><span class="step-num">3</span><span class="step-lbl">Design</span></button>
-              <button class="step" data-step="text" role="tab"><span class="step-num">4</span><span class="step-lbl">Details</span></button>
-              <button class="step step-preview" data-step="preview" role="tab"><span class="step-num">4</span><span class="step-lbl">Preview</span></button>
+              <button class="step" data-step="template" role="tab"><span class="step-num">1</span><span class="step-lbl">Template</span></button>
+              <button class="step" data-step="stock" role="tab"><span class="step-num">2</span><span class="step-lbl">Stock</span></button>
+              <button class="step" data-step="products" role="tab"><span class="step-num">3</span><span class="step-lbl">Review</span></button>
+              <button class="step" data-step="design" role="tab"><span class="step-num">4</span><span class="step-lbl">Design</span></button>
+              <button class="step" data-step="text" role="tab"><span class="step-num">5</span><span class="step-lbl">Details</span></button>
+              <button class="step step-preview" data-step="preview" role="tab"><span class="step-num">5</span><span class="step-lbl">Preview</span></button>
             </div>
             <div class="panel-scroll" id="panel-scroll">
 
-              <!-- STEP 1: STOCK -->
+              <!-- STEP 1: TEMPLATE (home) -->
+              <div class="pane" data-pane="template" hidden>
+                <div class="pane-head"><h2>Choose a template</h2><p>Start with the look. Your stock, text and branding drop straight in, and you can switch any time in Design.</p></div>
+                <div class="tpl-pick" id="tpl-pick"></div>
+                <div class="tpl-restore" id="tpl-restore"></div>
+              </div>
+
+              <!-- STEP 2: STOCK -->
               <div class="pane" data-pane="stock">
                 <div class="pane-head">
                   <h2>Paste your stock list</h2>
@@ -4935,22 +4978,23 @@ const Editor = {
 /* =====================================================================
    Panel: steps, bindings
    ===================================================================== */
-const STEPS = ['stock', 'products', 'design', 'text'];
+const STEPS = ['template', 'stock', 'products', 'design', 'text'];
 // on phones the flow is shorter: details live inside Design, and it ends on a big Preview with download / share / copy
-const PHONE_STEPS = ['stock', 'products', 'design', 'preview'];
+const PHONE_STEPS = ['template', 'stock', 'products', 'design', 'preview'];
 const stepsFor = () => (isMobile() ? PHONE_STEPS : STEPS);
-const NEXT_LABEL = { stock: 'Review products', products: 'Choose design', design: 'Add details', text: 'Export poster', preview: '' };
-const PHONE_NEXT = { stock: 'Review products', products: 'Choose design', design: 'Preview & download', preview: '' };
+const NEXT_LABEL = { template: 'Paste stock list', stock: 'Review products', products: 'Choose design', design: 'Add details', text: 'Export poster', preview: '' };
+const PHONE_NEXT = { template: 'Paste stock list', stock: 'Review products', products: 'Choose design', design: 'Preview & download', preview: '' };
 function setStep(s) {
   const phone = isMobile(), list = stepsFor();
   if (phone && s === 'text') s = 'design';
   if (!phone && s === 'preview') s = 'text';
-  if (!list.includes(s)) s = 'stock';
+  if (!list.includes(s)) s = 'template';
   App.step = s; LS.set('step', s);
+  if (App.view === 'studio') { $$('.nav-item[data-view="studio"], .bn-item[data-view="studio"]').forEach(b => b.classList.toggle('active', s !== 'template')); $$('.nav-item[data-view="templates"], .bn-item[data-view="templates"]').forEach(b => b.classList.toggle('active', s === 'template')); }
   $('#studio')?.setAttribute('data-step', s);
   $$('.step').forEach(b => { const i = list.indexOf(b.dataset.step), j = list.indexOf(s); b.classList.toggle('active', i === j); b.classList.toggle('done', i >= 0 && i < j); b.setAttribute('aria-selected', String(i === j)); });
   $$('.pane').forEach(p => { p.hidden = !(p.dataset.pane === s || (phone && s === 'design' && p.dataset.pane === 'text')); });
-  $('#step-back').disabled = s === 'stock';
+  $('#step-back').disabled = s === 'template';
   $('#step-back').lastChild.textContent = phone && s === 'preview' ? 'Edit' : 'Back';
   const last = phone && s === 'preview', pages = last ? Pages.count() : 1;
   $('#step-next-lbl').textContent = last ? (pages > 1 ? `Download all ${pages}` : 'Download') : (phone ? PHONE_NEXT : NEXT_LABEL)[s];
@@ -4958,6 +5002,7 @@ function setStep(s) {
   $('#step-next').classList.toggle('dl', last);
   if (!phone) $('#panel-scroll').scrollTop = 0;
   else { const v = $('#view-studio'); if (v) v.scrollTop = 0; }
+  if (s === 'template') renderTplPick();
   if (s === 'design') { renderTplGrid(); renderBgStrip(); scheduleThumbs(true); }
   if (s === 'design' || s === 'text') renderBrandMini();
   if (s === 'products') { renderProducts(); renderBulkCallout(); }
@@ -5366,9 +5411,55 @@ function renderBulkCallout() {
 }
 
 /* ---------- design pane ---------- */
+// templates you haven't deleted, in order
+const visibleTemplates = () => { const hid = App.settings?.hiddenTemplates || []; const v = TEMPLATE_ORDER.filter(id => !hid.includes(id)); return v.length ? v : TEMPLATE_ORDER.slice(0, 1); };
+// step 1 (home): big template cards with live previews and a delete button
+function renderTplPick() {
+  const box = $('#tpl-pick'); if (!box) return; const ids = visibleTemplates(), sig = ids.join(',');
+  if (box.dataset.sig !== sig) {
+    box.dataset.sig = sig;
+    box.innerHTML = ids.map(id => { const t = TEMPLATES[id]; return `<div class="tpick" data-tpl="${id}" role="button" tabindex="0" aria-label="Use the ${esc(t.name)} template">
+        <div class="tp-media skeleton"><canvas width="300"></canvas><span class="tp-check">${icon('check', 'sm')}</span><button class="tp-del" data-tpl-del="${id}" aria-label="Delete the ${esc(t.name)} template">${icon('trash', 'sm')}</button></div>
+        <div class="tp-body"><b>${esc(t.name)}</b><span>${esc(t.desc)}</span><div class="tp-tags">${(t.tags || []).map(g => `<i>${esc(g)}</i>`).join('')}</div></div>
+      </div>`; }).join('');
+    drawTplPick();
+  }
+  $$('.tpick', box).forEach(c => { const on = c.dataset.tpl === App.project.template; c.classList.toggle('active', on); c.setAttribute('aria-pressed', String(on)); });
+  const hidden = (App.settings.hiddenTemplates || []).filter(id => TEMPLATES[id]);
+  $('#tpl-restore').innerHTML = hidden.length ? `<button class="link-btn" data-action="tpl-restore">${icon('refresh', 'sm')}Restore ${hidden.length} deleted template${hidden.length === 1 ? '' : 's'}</button>` : '';
+}
+let tplPickToken = 0;
+async function drawTplPick() {
+  const token = ++tplPickToken;
+  for (const c of $$('#tpl-pick .tpick')) {
+    if (token !== tplPickToken) return;
+    const cv = $('canvas', c); try { drawProjectTo(cv, previewProject(App.project, c.dataset.tpl)); c.firstElementChild.classList.remove('skeleton'); } catch (e) { console.warn(e); }
+    await sleep(0);
+  }
+}
+async function deleteTemplate(id) {
+  const t = TEMPLATES[id]; if (!t) return;
+  if (visibleTemplates().length <= 1) { toast('Keep at least one template.', 'info'); return; }
+  const ok = await confirmDlg({ title: `Delete “${t.name}”?`, message: 'It disappears from your template list on this device. Posters already made with it keep their look, and you can restore it any time.', ok: 'Delete template' });
+  if (!ok) return;
+  const s = App.settings; s.hiddenTemplates = [...new Set([...(s.hiddenTemplates || []), id])];
+  const left = visibleTemplates();
+  if (s.defaults.template === id) s.defaults.template = left[0];
+  App.saveSettings();
+  if (App.project.template === id) applyTemplate(left[0], { silent: true });
+  refreshTemplateLists();
+  toast(`${t.name} deleted`, 'ok', { label: 'Undo', fn: () => restoreTemplates([id]) });
+}
+function restoreTemplates(ids) {
+  const s = App.settings; const before = (s.hiddenTemplates || []).length;
+  s.hiddenTemplates = ids ? (s.hiddenTemplates || []).filter(x => !ids.includes(x)) : [];
+  App.saveSettings(); refreshTemplateLists();
+  const n = before - s.hiddenTemplates.length; if (n) toast(n === 1 ? 'Template restored' : `${n} templates restored`, 'ok');
+}
+function refreshTemplateLists() { const g = $('#tpl-grid'); if (g) g.innerHTML = ''; renderTplGrid(); renderTplPick(); SettingsView.templateOptions(); scheduleThumbs(true); }
 function renderTplGrid() {
   const g = $('#tpl-grid'); const p = App.project;
-  if (!g.children.length) g.innerHTML = TEMPLATE_ORDER.map((id, i) => `<button class="tpl-card" data-tpl="${id}" title="${esc(TEMPLATES[id].desc)}"><div class="tpl-thumb skeleton"><canvas width="160" height="248"></canvas></div><div class="tpl-name">${TEMPLATES[id].name}${i < 9 ? `<kbd>${i + 1}</kbd>` : ''}</div></button>`).join('');
+  if (!g.children.length) g.innerHTML = visibleTemplates().map((id, i) => `<button class="tpl-card" data-tpl="${id}" title="${esc(TEMPLATES[id].desc)}"><div class="tpl-thumb skeleton"><canvas width="160" height="248"></canvas></div><div class="tpl-name">${TEMPLATES[id].name}${i < 9 ? `<kbd>${i + 1}</kbd>` : ''}</div></button>`).join('');
   $$('.tpl-card', g).forEach(c => c.classList.toggle('active', c.dataset.tpl === p.template));
 }
 function previewProject(base, tplId) {
@@ -5387,6 +5478,7 @@ let thumbTimer = 0;
 function scheduleThumbs(now) {
   clearTimeout(thumbTimer);
   thumbTimer = setTimeout(() => {
+    if (App.view === 'studio' && App.step === 'template') drawTplPick();
     if (App.view === 'studio' && App.step === 'design') {
       $$('#tpl-grid .tpl-card').forEach(c => { const cv = $('canvas', c); try { drawProjectTo(cv, previewProject(App.project, c.dataset.tpl)); c.firstElementChild.classList.remove('skeleton'); } catch (e) { console.warn(e); } });
     }
@@ -5422,6 +5514,14 @@ function renderColorGrid() {
 }
 function bindDesign() {
   $('#tpl-grid').addEventListener('click', e => { const c = e.target.closest('[data-tpl]'); if (c) applyTemplate(c.dataset.tpl); });
+  const pick = $('#tpl-pick');
+  pick.addEventListener('click', e => {
+    const d = e.target.closest('[data-tpl-del]'); if (d) { e.stopPropagation(); deleteTemplate(d.dataset.tplDel); return; }
+    const c = e.target.closest('.tpick'); if (!c) return;
+    if (App.project.template !== c.dataset.tpl) applyTemplate(c.dataset.tpl, { silent: true });
+    renderTplPick();
+  });
+  pick.addEventListener('keydown', e => { const c = e.target.closest('.tpick'); if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); c.click(); } });
   $('#bg-strip').addEventListener('click', e => { const c = e.target.closest('[data-bg]'); if (c) useBackground(c.dataset.bg); });
   $('#theme-grid').addEventListener('click', e => {
     const c = e.target.closest('[data-theme-preset]'); if (!c) return; const k = c.dataset.themePreset;
@@ -5503,7 +5603,7 @@ function refreshAll() {
   App.parseInfo = Parser.parse(p.raw, { currency: App.settings.defaults.currency });
   syncBindings(); renderFormat(); renderShowChips(); renderPicStyle(); renderThemeGrid(); renderColorGrid();
   renderDetect(); renderSampleNote(); renderStockMeta(); renderMarkupHint();
-  renderTplGrid(); if (App.step === 'design') renderBgStrip();
+  renderTplGrid(); if (App.step === 'design') renderBgStrip(); if (App.step === 'template') renderTplPick();
   if (App.step === 'products') { renderProducts(); renderBulkCallout(); }
   if (App.step === 'text') renderBrandMini();
   document.title = (p.name || 'Untitled') + ' · RePocket Poster Studio';
@@ -5695,7 +5795,7 @@ function loadProject(p, step) {
 async function newPoster() {
   if (!(await leaveDraft())) return;
   const had = App.project.products.length && !App.project.isSample;
-  loadProject(newProject(), 'stock');
+  loadProject(newProject(), 'template');
   setTimeout(() => $('#stock-input').focus(), 80);
   toast(had ? 'New poster. Your last design is saved in My posters.' : 'New poster. Paste your stock list to begin.', 'ok', had ? { label: 'View', fn: () => go('posters') } : null);
 }
@@ -5870,7 +5970,7 @@ async function uploadBackgrounds(files) {
    ===================================================================== */
 const TplView = {
   render() {
-    $('#tpl-page-grid').innerHTML = TEMPLATE_ORDER.map((id, i) => {
+    $('#tpl-page-grid').innerHTML = visibleTemplates().map((id, i) => {
       const t = TEMPLATES[id]; const sel = App.project.template === id;
       return `<button class="tplcard ${sel ? 'selected' : ''}" data-tpl="${id}"><div class="tc-media skeleton"><canvas width="340"></canvas></div><div class="tc-body"><div class="tc-title">${t.name}${sel ? `<span class="bg-badge on">${icon('check')}In use</span>` : ''}</div><p>${esc(t.desc)}</p><div class="tags">${t.tags.map(x => `<span class="chip">${x}</span>`).join('')}<span class="chip">Key ${i + 1}</span></div></div></button>`;
     }).join('');
@@ -5884,8 +5984,9 @@ const TplView = {
    Brand & settings
    ===================================================================== */
 const SettingsView = {
+  templateOptions() { const el = $('#s-dtpl'); if (!el) return; el.innerHTML = visibleTemplates().map(id => `<option value="${id}">${TEMPLATES[id].name}</option>`).join(''); el.value = App.settings.defaults.template; },
   init() {
-    $('#s-dtpl').innerHTML = TEMPLATE_ORDER.map(id => `<option value="${id}">${TEMPLATES[id].name}</option>`).join('');
+    this.templateOptions();
     $('#s-dfmt').innerHTML = FORMATS.filter(f => f.id !== 'custom').map(f => `<option value="${f.id}">${f.label} · ${f.w}×${f.h}</option>`).join('');
     $('#s-dcur').innerHTML = CURRENCIES.map(c => `<option value="${c}">${c}${CUR_SYMBOL[c] ? ' · ' + CUR_SYMBOL[c] : ''}</option>`).join('');
     $('#ui-theme-seg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; App.settings.uiTheme = b.dataset.val; applyUiTheme(); App.saveSettings(); });
@@ -6250,6 +6351,7 @@ const Actions = {
   'step-back': () => { const l = stepsFor(); setStep(l[Math.max(0, l.indexOf(App.step) - 1)]); },
   'step-next': a => { const l = stepsFor(), i = l.indexOf(App.step); if (i < l.length - 1) setStep(l[i + 1]); else if (isMobile()) { if (Pages.count() > 1) Exporter.downloadAllPages(); else Exporter.download('png'); } else exportMenu($('#btn-export')); },
   peek: () => setStep('preview'),
+  'tpl-restore': () => restoreTemplates(),
   'share-download': () => Exporter.download('png'),
   'share-jpg': () => Exporter.download('jpeg'),
   'share-copy': () => Exporter.copy(),
@@ -6271,6 +6373,7 @@ const Actions = {
   'folder-connect': () => FolderSync.connect(), 'folder-resume': () => FolderSync.resume(), 'folder-stop': () => FolderSync.stop(),
 };
 function go(view) {
+  if (view === 'templates') { go('studio'); setStep('template'); return; }
   if (!$('#view-' + view)) view = 'studio';
   const prev = App.view; App.view = view;
   $$('[data-view-panel]').forEach(s => { s.hidden = s.dataset.viewPanel !== view; });
@@ -6314,7 +6417,7 @@ function bindKeys() {
       case 'ArrowRight': if (App.sel) { e.preventDefault(); Editor.nudge(step, 0); } break;
       case 'ArrowUp': if (App.sel) { e.preventDefault(); Editor.nudge(0, -step); } break;
       case 'ArrowDown': if (App.sel) { e.preventDefault(); Editor.nudge(0, step); } break;
-      default: if (/^[1-9]$/.test(e.key) && TEMPLATE_ORDER[+e.key - 1]) applyTemplate(TEMPLATE_ORDER[+e.key - 1]);
+      default: { const vt = visibleTemplates(); if (/^[1-9]$/.test(e.key) && vt[+e.key - 1]) applyTemplate(vt[+e.key - 1]); }
     }
   });
 }
@@ -6394,8 +6497,8 @@ async function init() {
   document.addEventListener('visibilitychange', () => { if (document.hidden) { autosave.flush(); App.saveSettings.flush(); } });
 
   Hist.reset(); refreshAll();
-  setStep(App.project.isSample ? 'stock' : LS.get('step', 'stock'));
-  const hv = (location.hash || '').slice(1); go(['studio', 'posters', 'backgrounds', 'templates', 'settings'].includes(hv) ? hv : (LS.get('view', 'studio') || 'studio'));
+  const hv = (location.hash || '').slice(1); go(['studio', 'posters', 'backgrounds', 'templates', 'settings'].includes(hv) ? hv : 'studio');
+  setStep(hv === 'templates' || !['posters', 'backgrounds', 'settings'].includes(hv) ? 'template' : LS.get('step', 'template'));
   updatePosterCount();
   ensureFonts(App.project).then(() => { Studio.requestRender(); scheduleThumbs(); });
   setSaveState('saved');
@@ -6644,56 +6747,60 @@ const TOUR_STEPS = [
     body: `<p><b>Create poster</b> is the studio, where the work happens. <b>My posters</b> keeps everything you’ve made. <b>Backgrounds</b> and <b>Templates</b> are the wardrobe. <b>Brand &amp; settings</b> holds the RePocket logo, contacts and defaults.</p><p>On a phone, this menu lives in the bar at the bottom of the screen.</p>` },
   { ch: 'Getting around', sel: '.sb-new', view: 'studio', optional: true, title: 'New poster',
     body: `<p>Starts a clean poster. The one you’re working on is already saved in My posters, so there’s no “did you save it?” panic at 11pm.</p>`, tip: 'Shortcut: <kbd>N</kbd> while you’re in the studio.' },
-  { ch: 'Getting around', sel: '.steps', view: 'studio', step: 'stock', title: 'Four steps, any order',
-    body: `<p>Every poster is <b>Stock → Review → Design → Details</b>. Jump between them whenever you like; nothing breaks. It’s a checklist, not a contract.</p><p>The <b>Next</b> button at the bottom of the panel walks you through in order if you prefer being told what to do.</p>` },
+  { ch: 'Getting around', sel: '.steps', view: 'studio', step: 'template', title: 'Five steps, any order',
+    body: `<p>Every poster is <b>Template → Stock → Review → Design → Details</b> (on a phone the last step is <b>Preview</b>, with download and share). Jump between them whenever you like; nothing breaks. It’s a checklist, not a contract.</p><p>The <b>Next</b> button at the bottom of the panel walks you through in order if you prefer being told what to do.</p>` },
 
+  // ---- 1 Template
+  { ch: '1 · Template', sel: '#tpl-pick', view: 'studio', step: 'template', title: 'Pick a template first',
+    body: `<p>The app opens here. Tap a look, then <b>Next</b> to paste your stock. Every card is a live preview using your own products, so what you see is what you get.</p><p>Never use a template? Tap the <b>bin</b> on its card to delete it from your list. <b>Restore</b> under the cards brings them back.</p>`,
+    tip: 'Templates also live in Design, so you can switch your mind halfway. We won’t judge.' },
   // ---- 1 Stock
-  { ch: '1 · Stock', sel: '.stock-box', view: 'studio', step: 'stock', title: 'Paste the stock list',
+  { ch: '2 · Stock', sel: '.stock-box', view: 'studio', step: 'stock', title: 'Paste the stock list',
     body: `<p>Paste the list exactly as the supplier sent it: WhatsApp, Excel, an email, or that list someone typed out at 2am. It reads lines like <code>17 PM 256//512//1tb EU ASIS / 1090//1170//1260EUR</code> and works out the model, storage, grade, region, battery, SIM, colour, price and quantity while you type.</p><p>It knows the house rules too: <b>ASIS</b> and <b>ASIS+</b> are Apple-only and come in <b>packs of 20</b>, so “x 15 packs” becomes 300 pcs.</p>`,
     tip: 'No need to tidy the list first. Tidying is literally its job.' },
-  { ch: '1 · Stock', sel: '.stock-tools', view: 'studio', step: 'stock', title: 'Paste, Sample, Clear',
+  { ch: '2 · Stock', sel: '.stock-tools', view: 'studio', step: 'stock', title: 'Paste, Sample, Clear',
     body: `<p><b>Paste</b> grabs whatever is on your clipboard. <b>Sample</b> loads demo stock, perfect for showing the boss how clever we are. <b>Clear</b> empties the box (Undo brings it back).</p><p>The counter on the right shows how many lines it found.</p>` },
-  { ch: '1 · Stock', sel: '#detect-section', view: 'studio', step: 'stock', title: 'What it understood',
+  { ch: '2 · Stock', sel: '#detect-section', view: 'studio', step: 'stock', title: 'What it understood',
     body: `<p>Every product it found shows up here instantly, with its prices. Lines it couldn’t read are listed underneath, so nothing disappears quietly, unlike stock on a Friday afternoon.</p><p>Click any row to jump straight to that product and fix it.</p>` },
-  { ch: '1 · Stock', sel: '#clean-box', view: 'studio', step: 'stock', title: 'A cleaned-up list, free',
+  { ch: '2 · Stock', sel: '#clean-box', view: 'studio', step: 'stock', title: 'A cleaned-up list, free',
     body: `<p>Need to send the list as text as well? Open this for a tidy version with bold model names, ready to paste into WhatsApp.</p><p>Customers love a neat list. The ones who reply “best price?” will still reply “best price?”.</p>` },
 
   // ---- 2 Review
-  { ch: '2 · Review', sel: '#show-chips', view: 'studio', step: 'products', title: 'Show on poster',
+  { ch: '3 · Review', sel: '#show-chips', view: 'studio', step: 'products', title: 'Show on poster',
     body: `<p>Choose what appears for every product: price, quantity, grade, region and country flags, battery, SIM, colour, notes and pictures.</p><p>Hiding the quantity is the classic “we have plenty, trust me” move.</p>` },
-  { ch: '2 · Review', sel: '[data-pane=products] [data-picstyle]', view: 'studio', step: 'products', title: 'Real photos or illustrations',
+  { ch: '3 · Review', sel: '[data-pane=products] [data-picstyle]', view: 'studio', step: 'products', title: 'Real photos or illustrations',
     body: `<p><b>Real photos</b> show the actual phones, in the colour you’re selling. <b>Illustrations</b> are clean drawn devices with the right camera layout. <b>No pictures</b> leaves more room for prices.</p><p>Photos download once, then work offline.</p>`,
     tip: 'The same switch sits under the preview and in the Design step.' },
-  { ch: '2 · Review', sel: '.markup-row', view: 'studio', step: 'products', title: 'Price markup',
+  { ch: '3 · Review', sel: '.markup-row', view: 'studio', step: 'products', title: 'Price markup',
     body: `<p>Add your margin to every price at once: a fixed amount per unit or a percentage. The pasted prices stay untouched; only the poster shows the new ones. The hint shows a before → after example.</p><p>Buying at 930 and selling at 930 is a hobby, not a business.</p>` },
-  { ch: '2 · Review', sel: '#prod-list', view: 'studio', step: 'products', openFirst: true, title: 'Your products',
+  { ch: '3 · Review', sel: '#prod-list', view: 'studio', step: 'products', openFirst: true, title: 'Your products',
     body: `<p>Each product is a card. Untick it to hide it, drag the handle to reorder, click to open it and fix anything: model, region, grade, condition, battery, SIM, and a row per storage with its own price and quantity.</p>`,
     tip: 'The first product gets the big spotlight in hero templates like Spotlight.' },
-  { ch: '2 · Review', sel: '.prod-item.open .colors-field', view: 'studio', step: 'products', openFirst: true, optional: true, title: 'Official colours',
+  { ch: '3 · Review', sel: '.prod-item.open .colors-field', view: 'studio', step: 'products', openFirst: true, optional: true, title: 'Official colours',
     body: `<p>Every model comes with its official colours, so “orange” becomes <b>Cosmic Orange</b> without anyone googling it. Tap to pick one or several, or <b>Mixed colours</b>.</p><p>Need a shade we don’t list? Type a name, pick the colour and press Add. It’s remembered for that model.</p>`,
     tip: 'Picked colours show on the poster as names plus little colour dots.' },
-  { ch: '2 · Review', sel: '.prod-item.open .photo-pick', view: 'studio', step: 'products', openFirst: true, optional: true, title: 'Pick the picture',
+  { ch: '3 · Review', sel: '.prod-item.open .photo-pick', view: 'studio', step: 'products', openFirst: true, optional: true, title: 'Pick the picture',
     body: `<p><b>Auto</b> chooses a photo in the colour you picked. You can also choose a specific photo, the drawn device, or upload a photo of the real unit.</p><p>If there’s no photo in that exact colour, the right-coloured drawing is used rather than the wrong-coloured phone. Customers notice. Trust us.</p>` },
-  { ch: '2 · Review', sel: '[data-pane=products] .btn-block[data-action=bulk]', view: 'studio', step: 'products', optional: true, title: 'Too many products?',
+  { ch: '3 · Review', sel: '[data-pane=products] .btn-block[data-action=bulk]', view: 'studio', step: 'products', optional: true, title: 'Too many products?',
     body: `<p>Forty lines and one poster? Make several posters at once: one per series, one per product, or in groups. Much kinder than one poster in font size 3.</p>` },
 
   // ---- 3 Design
-  { ch: '3 · Design', sel: '#tpl-grid', view: 'studio', step: 'design', title: 'Templates',
+  { ch: '4 · Design', sel: '#tpl-grid', view: 'studio', step: 'design', title: 'Templates',
     body: `<p>Fourteen looks, from liquid-glass <b>Premium</b> and the bright <b>Liquid Light</b>, <b>Sunburst</b>, <b>Fresh Mint</b> and <b>Candy Pop</b>, to <b>Stock Drop</b>, black-and-gold <b>Luxe</b> and photo-heavy <b>Catalogue</b>. Switching keeps your products and text, so try them all.</p>`,
     tip: 'Press <kbd>1</kbd> to <kbd>9</kbd> to flick through templates while in the studio.' },
-  { ch: '3 · Design', sel: sectionOf('#bg-strip'), view: 'studio', step: 'design', title: 'Background',
+  { ch: '4 · Design', sel: sectionOf('#bg-strip'), view: 'studio', step: 'design', title: 'Background',
     body: `<p>Backgrounds that match your stock come first (iPhone stock gets iPhone photos), then warehouse shots. <b>Library</b> opens the full collection.</p><p><b>Overlay</b> darkens busy photos so prices stay readable, <b>Blur</b> gives a premium soft-focus look, and <b>Accent glow</b> adds a little drama at the bottom.</p>` },
-  { ch: '3 · Design', sel: sectionOf('#theme-grid'), view: 'studio', step: 'design', title: 'Colours',
+  { ch: '4 · Design', sel: sectionOf('#theme-grid'), view: 'studio', step: 'design', title: 'Colours',
     body: `<p>Pick a colour theme (<b>RePocket Blue</b> is the house style) or set background, text, accent and card colours one by one.</p><p>Change the background and the text colours adjust themselves, so nothing turns into white-on-white.</p>` },
-  { ch: '3 · Design', sel: sectionOf('#f-display'), view: 'studio', step: 'design', title: 'Typography',
+  { ch: '4 · Design', sel: sectionOf('#f-display'), view: 'studio', step: 'design', title: 'Typography',
     body: `<p>Fonts, sizes and the headline style. <b>RePocket blocks</b> is our logo lettering: big, bold and impossible to scroll past on a WhatsApp status.</p><p>Headline style can be <b>Logo</b> (white with a black outline, first word in RePocket blue), <b>Outline</b> or <b>Solid</b>.</p>` },
-  { ch: '3 · Design', sel: sectionOf('[data-seg="layout.columns"]'), view: 'studio', step: 'design', title: 'Layout',
+  { ch: '4 · Design', sel: sectionOf('[data-seg="layout.columns"]'), view: 'studio', step: 'design', title: 'Layout',
     body: `<p>Columns, card style, corner radius and spacing. <b>Auto</b> columns usually knows best. Overrule it when the boss is watching.</p><p><b>Reset positions</b> undoes any dragging you did on the poster.</p>` },
 
   // ---- 4 Details
-  { ch: '4 · Details', sel: sectionOf('#t-headline'), view: 'studio', step: 'text', title: 'Headline and text',
+  { ch: '5 · Details', sel: sectionOf('#t-headline'), view: 'studio', step: 'text', title: 'Headline and text',
     body: `<p>Write the headline, subtitle, an optional badge (like NEW ARRIVAL), where the stock is, and the call to action. Ideas appear under the boxes.</p><p><b>Suggest from stock</b> writes a subtitle for you, like “EU / Canada stock”. The stock location gets its country flag automatically.</p>` },
-  { ch: '4 · Details', sel: sectionOf('#brand-mini'), view: 'studio', step: 'text', title: 'Branding and contacts',
+  { ch: '5 · Details', sel: sectionOf('#brand-mini'), view: 'studio', step: 'text', title: 'Branding and contacts',
     body: `<p>Logo, company name and contact details. Set them once in Brand &amp; settings, then choose here which ones appear on this poster.</p><p>WhatsApp on, Instagram off? Your poster, your rules.</p>` },
 
   // ---- The poster
@@ -6722,7 +6829,7 @@ const TOUR_STEPS = [
     tip: 'Fastest daily routine: duplicate yesterday’s poster, paste today’s list, export. Done before the coffee.' },
   { ch: 'Library', sel: ['#view-backgrounds .page-head', '#bg-grid'], view: 'backgrounds', title: 'Backgrounds library',
     body: `<p>Over 60 backgrounds: photos of the devices in your stock first, then warehouse shots, studio looks and gradients, with solid colours last. Upload your own warehouse photos too.</p><p><b>Save photos for offline use</b> downloads everything once, for trade shows with Wi-Fi from 2009.</p>` },
-  { ch: 'Library', sel: '#tpl-page-grid', view: 'templates', title: 'Templates gallery',
+  { ch: 'Library', sel: '#tpl-page-grid', view: 'templates', optional: true, title: 'Templates gallery',
     body: `<p>Big previews of every template using your real stock. Click one to use it. No imagination required.</p>` },
 
   // ---- Brand & settings
@@ -6888,10 +6995,14 @@ const TIPS = [
   ['.save-btn', '<b>Save to My posters</b> It already autosaves; this files it under its name for peace of mind. <kbd>Ctrl</kbd>+<kbd>S</kbd>'],
   ['#btn-export', '<b>Export</b> Download PNG or JPG, copy the image for WhatsApp, make several posters at once, or see version history. <kbd>Ctrl</kbd>+<kbd>Enter</kbd> downloads a PNG.'],
   // steps
-  ['.step[data-step="stock"]', '<b>Step 1 · Stock</b> Paste the list. The parser does the reading.'],
-  ['.step[data-step="products"]', '<b>Step 2 · Review</b> Check products, choose what shows, add markup, pick colours and photos.'],
-  ['.step[data-step="design"]', '<b>Step 3 · Design</b> Template, pictures, background, colours, fonts and layout.'],
-  ['.step[data-step="text"]', '<b>Step 4 · Details</b> Headline, subtitle, badge, location, call to action and branding.'],
+  ['.step[data-step="template"]', '<b>Step 1 · Template</b> Pick the look first.'],
+  ['.tp-del', '<b>Delete template</b> Removes it from your list on this device. Restore brings it back.'],
+  ['.tpick', '<b>Template</b> Tap to use it, then Next to paste your stock.'],
+  ['[data-action="tpl-restore"]', '<b>Restore</b> Brings back every template you deleted.'],
+  ['.step[data-step="stock"]', '<b>Step 2 · Stock</b> Paste the list. The parser does the reading.'],
+  ['.step[data-step="products"]', '<b>Step 3 · Review</b> Check products, choose what shows, add markup, pick colours and photos.'],
+  ['.step[data-step="design"]', '<b>Step 4 · Design</b> Template, pictures, background, colours, fonts and layout.'],
+  ['.step[data-step="text"]', '<b>Step 5 · Details</b> Headline, subtitle, badge, location, call to action and branding.'],
   ['#step-next', '<b>Next step</b> Walks you through the steps in order. On the last step it exports.'],
   ['#step-back', '<b>Back</b> Previous step. Nothing is lost when you go back.'],
   // stock

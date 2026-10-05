@@ -5,7 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>RePocket Poster Studio</title>
 <meta name="description" content="Turn RePocket stock lists into sales-ready posters.">
-<meta name="theme-color" content="#101828">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12151b" media="(prefers-color-scheme: dark)">
+<meta name="application-name" content="RePocket Posters">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RePocket">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23101828'/%3E%3Crect x='9' y='6' width='14' height='20' rx='2.5' fill='none' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M12 12h8M12 16h8M12 20h5' stroke='%232b59ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -332,6 +339,49 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .vt-row .input{height:32px;font-size:13px;padding:0 8px;font-family:var(--font-mono)}
 .prod-thumb img.ph{object-fit:cover}
 .bg-badge.match{background:rgba(11,94,215,.88);color:#fff}
+/* ---------- phone app ---------- */
+button,a,.bn-item,.pr-item,.tpl-card,.swchip{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html.is-app,html.is-app body{overscroll-behavior:none}
+.app-splash{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;background:linear-gradient(165deg,#0a1b3f 0%,#071430 55%,#0b3f9c 100%);transition:opacity .38s ease}
+.app-splash .sp-in{display:flex;flex-direction:column;align-items:center;gap:16px;animation:splashIn .5s var(--ease)}
+.app-splash .ic{width:64px;height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.4))}
+.app-splash .wm{width:210px;height:auto}
+.app-splash span{font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.app-splash.out{opacity:0;pointer-events:none}
+@keyframes splashIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.poster-wrap.in-r{animation:posterInR .24s var(--ease)}
+.poster-wrap.in-l{animation:posterInL .24s var(--ease)}
+@keyframes posterInR{from{opacity:.35;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes posterInL{from{opacity:.35;transform:translateX(-28px)}to{opacity:1;transform:none}}
+.sb-install{color:var(--ok);font-weight:600}
+.bar-install{display:none}
+.app-status{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:var(--r-sm);background:var(--surface-2);border:1px solid var(--line);font-size:12.5px}
+.app-row{display:flex;justify-content:space-between;gap:10px}
+.app-row span{color:var(--text-3)}
+.app-row b{font-weight:600;color:var(--text);text-align:right}
+.app-card .card-body{display:flex;flex-direction:column;gap:8px}
+.modal.app-sheet{width:min(420px,100%)}
+.app-hero{display:flex;align-items:center;gap:14px;padding:12px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--line)}
+.app-hero img{width:52px;height:52px;object-fit:contain;padding:8px;border-radius:14px;background:linear-gradient(180deg,#ffffff,#d6e4fb);box-shadow:0 4px 12px rgba(11,40,110,.18)}
+.app-hero b{display:block;font-size:15px}
+.app-hero span{font-size:12.5px;color:var(--text-2)}
+.perks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.perks li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45;color:var(--text-2)}
+.perks li svg{flex:none;margin-top:2px;color:var(--accent)}
+.perks b{color:var(--text)}
+.steps-list{margin:0;padding:0 0 0 18px;display:flex;flex-direction:column;gap:10px;font-size:13.5px;line-height:1.5;color:var(--text-2)}
+.steps-list b{color:var(--text)}
+.steps-list.ios{list-style:none;padding:0}
+.steps-list.ios li{display:flex;gap:12px;align-items:flex-start}
+.steps-list .n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:700}
+.ios-ic{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;background:var(--accent-soft);color:var(--accent-ink);vertical-align:middle;margin-left:2px}
+.ios-ic svg{width:15px;height:15px}
+.sheet-text{font-size:14px;line-height:1.55;color:var(--text-2);margin:0}
+.sheet-note{font-size:12.5px;color:var(--text-3);margin:0}
+.sheet-link{margin:0;padding:10px 12px;border-radius:var(--r-sm);background:var(--surface-2);border:1px solid var(--line);font-size:12.5px;overflow-wrap:anywhere}
+.bell-hero{width:64px;height:64px;margin:4px auto 2px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);animation:bellRing 1.6s ease-in-out 1}
+.bell-hero svg{width:30px;height:30px}
+@keyframes bellRing{0%,100%{transform:rotate(0)}15%{transform:rotate(14deg)}30%{transform:rotate(-12deg)}45%{transform:rotate(8deg)}60%{transform:rotate(-4deg)}}
 /* ---------- poster set rail ---------- */
 .stage{--rail-w:184px}
 .stage.has-pages{padding-right:var(--rail-w)}
@@ -785,6 +835,31 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   .page-arrow.prev{left:8px}
   .page-arrow.next{right:8px}
 }
+@media (max-width:899px){
+  .bar-install{display:inline-flex;height:32px;padding:0 10px;font-size:12.5px;gap:5px;border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft)}
+  .bar-install[hidden]{display:none}
+  .bar-install:not([hidden]) ~ .bar-tour{display:none}
+  .sbar-left{flex:1 1 auto;min-width:64px}
+  .studio-bar .name-input{min-width:56px;width:100%}
+  .bar-install svg{width:15px;height:15px}
+  body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  input,textarea,select,pre,[contenteditable]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+  .bn-item{gap:4px;font-size:11px}
+  .bn-item svg{width:22px;height:22px;padding:4px 16px;box-sizing:content-box;border-radius:16px;transition:background .2s ease,color .2s ease}
+  .bn-item.active svg{background:var(--accent-soft)}
+  .bn-item:active svg{transform:scale(.92)}
+  .menu.as-sheet{left:0!important;right:0;top:auto!important;bottom:0;width:auto;min-width:0;max-height:80dvh;border-radius:20px 20px 0 0;border-left:0;border-right:0;border-bottom:0;padding:6px 10px calc(14px + env(safe-area-inset-bottom,0px));animation:sheetIn .24s var(--ease);box-shadow:0 -12px 40px rgba(16,24,40,.25);z-index:81}
+  .menu.as-sheet::before{content:"";display:block;width:40px;height:5px;border-radius:5px;background:var(--line-strong);margin:4px auto 10px}
+  .menu.as-sheet .menu-item{height:auto;min-height:50px;padding:0 14px;font-size:15px;border-radius:12px}
+  .menu.as-sheet .menu-item svg{width:18px;height:18px}
+  .menu.as-sheet .mk{display:none}
+  .menu-backdrop{position:fixed;inset:0;z-index:80;background:var(--scrim);animation:fadeIn .16s ease}
+  .btn,.icon-btn{min-height:40px}
+  .btn-sm{min-height:34px}
+  .modal-foot{padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+  .modal-foot .btn{flex:1;justify-content:center;min-height:46px}
+}
+@media (max-width:420px){.bar-install span{display:none}.bar-install{padding:0 9px}}
 @media (max-width:1279px){.sb-tour .tour-pill{display:none}}
 @media (max-width:899px){.bar-tour{display:inline-flex}}
 @media (prefers-reduced-motion:reduce){
@@ -810,6 +885,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
     </nav>
     <div class="sb-foot">
       <div class="sb-note"><i data-icon="shield"></i><span id="sb-note-text">Every design saves automatically on this device. No account needed.</span></div>
+      <button class="nav-item sb-install" data-action="app-install" data-app="install" hidden><i class="nav-ic" data-icon="smartphone"></i><span class="nav-label">Install app</span></button>
       <button class="nav-item sb-tour" data-action="tour" aria-label="Take the guided tour"><i class="nav-ic" data-icon="compass"></i><span class="nav-label">Take the tour</span><span class="tour-pill">3 min</span></button>
       <button class="nav-item" data-action="shortcuts" title="Keyboard shortcuts (?)"><i class="nav-ic" data-icon="keyboard"></i><span class="nav-label">Shortcuts</span></button>
       <button class="nav-item" data-action="toggle-theme" title="Switch light / dark"><i class="nav-ic" data-icon="moon" id="theme-ic"></i><span class="nav-label" id="theme-lbl">Dark mode</span></button>
@@ -830,6 +906,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
             <select class="select format-select" id="format-select" aria-label="Poster size"></select>
           </div>
           <div class="sbar-right">
+            <button class="btn btn-sm bar-install" data-action="app-install" data-app="install" hidden><i data-icon="smartphone"></i><span>Get app</span></button>
             <button class="icon-btn bar-tour" data-action="tour" aria-label="Take the guided tour"><i data-icon="compass"></i></button>
             <div class="undo-grp">
               <button class="icon-btn" id="btn-undo" data-action="undo" title="Undo (Ctrl+Z)" aria-label="Undo"><i data-icon="undo"></i></button>
@@ -1202,6 +1279,14 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
               <div class="card-head"><div><h3>Live preview</h3><p>Your current poster with these details.</p></div></div>
               <div class="preview-card" style="margin-top:12px"><canvas id="settings-preview" width="300" height="533"></canvas></div>
             </div>
+            <div class="card app-card">
+              <div class="card-head"><div><h3>Phone app</h3><p>Install RePocket Posters on your iPhone, Android phone or computer. It opens full screen from your home screen and works offline.</p></div></div>
+              <div class="card-body">
+                <div class="app-status" id="app-status"></div>
+                <button class="btn btn-primary btn-block" data-action="app-install" data-app="install" hidden><i data-icon="smartphone"></i>Install the app</button>
+                <button class="btn btn-block" data-action="app-notify" id="btn-notify" hidden><i data-icon="bell"></i>Turn on notifications</button>
+              </div>
+            </div>
             <div class="card">
               <div class="card-head"><div><h3>Help</h3><p>New to the studio, or showing it to someone new on the team?</p></div></div>
               <div class="card-body">
@@ -1289,6 +1374,10 @@ const isDarkHex = hex => lum(hex) < 0.36;
 /* ---------- icons (24px stroke set) ---------- */
 const ICONS = {
   compass: 'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18ZM15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1 5.1-2.1Z',
+  bell: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0',
+  smartphone: 'M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2',
+  'ios-share': 'M12 3v12M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1',
+  'plus-square': 'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM12 8v8M8 12h8',
   plus: 'M12 5v14M5 12h14', minus: 'M5 12h14', x: 'M18 6 6 18M6 6l12 12', check: 'M20 6 9 17l-5-5',
   'chevron-down': 'm6 9 6 6 6-6', 'chevron-up': 'm18 15-6-6-6 6', 'chevron-left': 'm15 18-6-6 6-6', 'chevron-right': 'm9 18 6-6-6-6',
   'arrow-right': 'M5 12h14M13 5l7 7-7 7',
@@ -5363,10 +5452,14 @@ function openMenu(anchor, items, { align = 'end' } = {}) {
   const el = h('<div class="menu" role="menu"></div>');
   el.innerHTML = items.map((it, i) => it.sep ? '<div class="menu-sep"></div>' : it.html ? it.html : `<button class="menu-item ${it.danger ? 'danger' : ''}" role="menuitem" data-i="${i}">${it.icon ? icon(it.icon, 'sm') : ''}<span>${esc(it.label)}</span>${it.kbd ? `<span class="mk">${it.kbd.split('+').map(k => `<kbd>${k}</kbd>`).join('')}</span>` : ''}</button>`).join('');
   document.body.appendChild(el);
-  const r = anchor.getBoundingClientRect(); const mw = el.offsetWidth, mh = el.offsetHeight;
-  let left = align === 'end' ? r.right - mw : r.left; left = clamp(left, 8, innerWidth - mw - 8);
-  let top = r.bottom + 6; if (top + mh > innerHeight - 8) top = Math.max(8, r.top - mh - 6);
-  el.style.left = left + 'px'; el.style.top = top + 'px';
+  if (isMobile()) { // phone: slide up from the bottom like a native action sheet
+    el.classList.add('as-sheet'); const bd = h('<div class="menu-backdrop"></div>'); document.body.insertBefore(bd, el); el._bd = bd;
+  } else {
+    const r = anchor.getBoundingClientRect(); const mw = el.offsetWidth, mh = el.offsetHeight;
+    let left = align === 'end' ? r.right - mw : r.left; left = clamp(left, 8, innerWidth - mw - 8);
+    let top = r.bottom + 6; if (top + mh > innerHeight - 8) top = Math.max(8, r.top - mh - 6);
+    el.style.left = left + 'px'; el.style.top = top + 'px';
+  }
   el.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (!b) return; const it = items[+b.dataset.i]; closeMenu(); it.fn && it.fn(); });
   el.addEventListener('keydown', e => { const btns = $$('.menu-item', el); const i = btns.indexOf(document.activeElement); if (e.key === 'ArrowDown') { e.preventDefault(); btns[(i + 1) % btns.length]?.focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); btns[(i - 1 + btns.length) % btns.length]?.focus(); } });
   App.menu = el;
@@ -5375,7 +5468,7 @@ function openMenu(anchor, items, { align = 'end' } = {}) {
   return el;
 }
 function menuAway(e) { if (App.menu && !App.menu.contains(e.target)) closeMenu(); }
-function closeMenu() { if (!App.menu) return false; App.menu.remove(); App.menu = null; document.removeEventListener('pointerdown', menuAway, true); window.removeEventListener('resize', closeMenu); return true; }
+function closeMenu() { if (!App.menu) return false; App.menu._bd?.remove(); App.menu.remove(); App.menu = null; document.removeEventListener('pointerdown', menuAway, true); window.removeEventListener('resize', closeMenu); return true; }
 function setIcon(sel, name) { const el = typeof sel === 'string' ? $(sel) : sel; el?.querySelector('path')?.setAttribute('d', ICONS[name]); }
 function whenImg(key, fn) { if (Img.status(key) === 'none') Img.load(key).then(() => { if (Img.status(key) === 'ok') fn(); }); }
 async function copyText(t, msg) {
@@ -6208,7 +6301,7 @@ async function init() {
   ensureFonts(App.project).then(() => { Studio.requestRender(); scheduleThumbs(); });
   setSaveState('saved');
   FolderSync.init();
-  Tips.init();
+  Tips.init(); AppMode.init();
   if (!App.settings.tourSeen) {
     $$('.sb-tour, .bar-tour').forEach(b => b.classList.add('is-new'));
     if (!App.settings.tourPrompted) { App.settings.tourPrompted = true; App.saveSettings(); setTimeout(() => { if (!Tour.on) toast('New here? Take the 3-minute tour of the studio.', 'info', { label: 'Start tour', fn: () => Tour.start() }, 12000); }, 1400); }
@@ -6343,6 +6436,7 @@ const PagesRail = {
   go(i) {
     const n = Pages.count(); if (n < 2) return;
     const j = clamp(i, 0, n - 1); if (j === App.page) return;
+    const w = $('#poster-wrap'); if (w) { w.classList.remove('in-l', 'in-r'); void w.offsetWidth; w.classList.add(j > App.page ? 'in-r' : 'in-l'); }
     App.page = j; Editor.select(null); Studio.render();
   },
   update(L) {
@@ -6537,6 +6631,9 @@ const TOUR_STEPS = [
     body: `<p>What a new poster starts with: template, size, product pictures, products per poster, currency, markup and export type. Set it to match how the team works, then never think about it again.</p>` },
   { ch: 'Brand & settings', sel: cardOf('#folder-status'), view: 'settings', title: 'Save to a folder',
     body: `<p>Optionally write every design and exported image into a folder on this computer, like a shared drive. Handy when three people need the same poster and nobody wants to forward it.</p>` },
+  { ch: 'Brand & settings', sel: '.app-card', view: 'settings', title: 'Phone app',
+    body: `<p>RePocket Posters installs like a real app on iPhone, Android and computers: its own icon, full screen, and it keeps working offline.</p><p>Turn on notifications and you’ll get a heads-up when a big batch of posters is ready, even if you’ve wandered off to WhatsApp in the meantime.</p>`,
+    tip: 'On iPhone: Share, then Add to Home Screen.' },
   { ch: 'Brand & settings', sel: cardOf('[data-action=backup-export]'), view: 'settings', title: 'Backups',
     body: `<p>Download a backup before switching laptops, then restore it on the new one. <b>Delete all data</b> really means all of it, which is why it asks first.</p>` },
   { ch: 'Brand & settings', sel: ['.sb-tour', '.bar-tour'], view: 'studio', title: 'Come back any time',
@@ -6677,6 +6774,8 @@ const TIPS = [
   ['.nav-item[data-view="backgrounds"], .bn-item[data-view="backgrounds"]', '<b>Backgrounds</b> 60+ scenes. Photos of the devices you’re selling come first, then warehouses, then gradients and solid colours.'],
   ['.nav-item[data-view="templates"], .bn-item[data-view="templates"]', '<b>Templates</b> Big previews of all 14 looks using your real stock.'],
   ['.nav-item[data-view="settings"], .bn-item[data-view="settings"]', '<b>Brand &amp; settings</b> Logo, company details, contacts, defaults and backups. Set once, enjoy forever.'],
+  ['[data-action="app-install"]', '<b>Install the app</b> Puts RePocket Posters on your home screen. Opens full screen, works offline.'],
+  ['[data-action="app-notify"]', '<b>Notifications</b> Get a heads-up when your posters are ready to download.'],
   ['.sb-tour, .bar-tour, [data-action="tour"]', '<b>Guided tour</b> Three minutes, every button explained, a few bad jokes included at no extra cost.'],
   ['[data-action="shortcuts"]', '<b>Keyboard shortcuts</b> For people who think the mouse is a lifestyle choice. <kbd>?</kbd>'],
   ['[data-action="toggle-theme"]', '<b>Light / dark</b> Switches the app’s look. Your poster stays exactly as it is.'],
@@ -6832,6 +6931,160 @@ const Tips = {
   },
 };
 Actions.tour = () => Tour.start();
+
+/* =====================================================================
+   Phone app: install (PWA), notifications, offline, app-style touches
+   ===================================================================== */
+const AppMode = {
+  deferred: null, reg: null,
+  web: /^https?:$/.test(location.protocol),
+  ios: /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
+  android: /android/i.test(navigator.userAgent),
+  standalone() { return matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true; },
+  canNotify() { return 'Notification' in window && 'serviceWorker' in navigator && this.web; },
+  installable() { return this.web && !this.standalone() && !!(this.deferred || this.ios); },
+  init() {
+    document.documentElement.classList.toggle('is-app', this.standalone());
+    this.headLinks();
+    if (this.web && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then(r => { this.reg = r; }).catch(e => console.warn('Service worker', e));
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); this.deferred = e; this.refreshUI(); });
+    window.addEventListener('appinstalled', () => { this.deferred = null; App.settings.appInstalled = true; App.saveSettings(); this.refreshUI(); closeTop(); toast('Installed. Open RePocket Posters from your home screen.', 'ok'); });
+    window.addEventListener('online', () => toast('Back online', 'ok'));
+    window.addEventListener('offline', () => toast('You’re offline. The studio keeps working; new photos load when you’re back.', 'info', null, 6000));
+    matchMedia('(display-mode: standalone)').addEventListener?.('change', () => { document.documentElement.classList.toggle('is-app', this.standalone()); this.refreshUI(); });
+    this.splash(); this.haptics(); this.swipe(); this.refreshUI();
+    App.settings.appVisits = (App.settings.appVisits || 0) + 1; App.saveSettings();
+    setTimeout(() => this.maybePrompt(), this.standalone() ? 2200 : 8000);
+    const q = new URLSearchParams(location.search);
+    if (q.get('action') === 'new') setTimeout(() => newPoster(), 700);   // home-screen shortcut
+  },
+  // the manifest and icons only make sense when served from the web (not from a file on the Desktop)
+  headLinks() {
+    if (!this.web) return;
+    const add = (rel, href, extra = {}) => { const l = document.createElement('link'); l.rel = rel; l.href = href; Object.assign(l, extra); document.head.appendChild(l); };
+    add('manifest', 'manifest.webmanifest');
+    add('apple-touch-icon', 'icons/apple-touch-icon.png');
+    add('icon', 'icons/icon-192.png', { type: 'image/png', sizes: '192x192' });
+  },
+  refreshUI() {
+    const can = this.installable();
+    $$('[data-app="install"]').forEach(b => { b.hidden = !can; });
+    const st = $('#app-status'); if (!st) return;
+    const notif = !this.canNotify() ? (this.ios && !this.standalone() ? 'Available after you install the app' : 'Not available in this browser') : Notification.permission === 'granted' ? 'On' : Notification.permission === 'denied' ? 'Blocked in browser settings' : 'Off';
+    st.innerHTML = `<div class="app-row"><span>App</span><b>${this.standalone() ? 'Installed and running as an app' : !this.web ? 'Open the online version to install' : can ? 'Ready to install' : 'Use your browser menu to install'}</b></div><div class="app-row"><span>Notifications</span><b>${notif}</b></div>`;
+    const nb = $('#btn-notify'); if (nb) nb.hidden = !(this.canNotify() && Notification.permission === 'default');
+  },
+  maybePrompt() {
+    if (Tour.on || Layers.length || App.menu) { setTimeout(() => this.maybePrompt(), 6000); return; }
+    const s = App.settings, now = Date.now(), day = 864e5;
+    const phone = isMobile() || this.ios || this.android;
+    if (this.installable() && phone && !(s.installAskedAt > now - 3 * day)) { this.installSheet(); return; }
+    if (this.canNotify() && Notification.permission === 'default' && !(s.notifyAskedAt > now - 7 * day) && (this.standalone() || s.appVisits >= 2)) this.notifySheet();
+  },
+  async install() {
+    if (this.standalone()) { toast('You’re already using the app.', 'info'); return; }
+    if (this.deferred) {
+      const d = this.deferred; this.deferred = null; d.prompt();
+      const r = await d.userChoice.catch(() => null); this.refreshUI();
+      if (r?.outcome === 'accepted') navigator.vibrate?.(12);
+      return;
+    }
+    if (this.ios) { this.iosSheet(); return; }
+    if (!this.web) {
+      modal({ title: 'Install from the online version', body: `<p class="sheet-text">This copy runs from a file, which phones and browsers can’t install. Open the online studio on your phone and install it from there:</p><p class="sheet-link"><b>https://deepak-repocketb2btrading.github.io/repocket-poster-studio/</b></p>`, foot: `<button class="btn btn-primary" data-close>Got it</button>` });
+      return;
+    }
+    modal({ title: 'Install from your browser menu', body: `<ol class="steps-list"><li>Open your browser’s menu (${icon('dots', 'sm')} or ${icon('more', 'sm')}).</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>.</li><li>Confirm, and RePocket Posters appears with your other apps.</li></ol>`, foot: `<button class="btn btn-primary" data-close>Got it</button>` });
+  },
+  installSheet() {
+    App.settings.installAskedAt = Date.now(); App.saveSettings();
+    const m = modal({
+      title: 'Get the RePocket app', size: 'app-sheet',
+      body: `<div class="app-hero"><img src="${BRAND_ASSETS.icon96}" alt=""><div><b>RePocket Posters</b><span>Poster studio for your stock lists</span></div></div>
+        <ul class="perks">
+          <li>${icon('sparkle', 'sm')}<span><b>Opens like an app</b> from your home screen, full screen, no browser bars.</span></li>
+          <li>${icon('cloud-down', 'sm')}<span><b>Works offline</b> at the warehouse or a trade show.</span></li>
+          <li>${icon('share', 'sm')}<span><b>Share faster</b> straight to WhatsApp and Instagram.</span></li>
+        </ul>`,
+      foot: `<button class="btn" data-close>Not now</button><button class="btn btn-primary" id="app-go">${icon('download', 'sm')}Install</button>`,
+    });
+    $('#app-go', m.el).onclick = () => { m.close(); this.install(); };
+  },
+  iosSheet() {
+    modal({
+      title: 'Add to your Home Screen', size: 'app-sheet',
+      body: `<div class="app-hero"><img src="${BRAND_ASSETS.icon96}" alt=""><div><b>RePocket Posters</b><span>Install on iPhone or iPad in 3 taps</span></div></div>
+        <ol class="steps-list ios">
+          <li><span class="n">1</span><span>Tap <b>Share</b> <i class="ios-ic">${icon('ios-share', 'sm')}</i>: at the bottom in Safari, next to the address bar in Chrome.</span></li>
+          <li><span class="n">2</span><span>Scroll down and tap <b>Add to Home Screen</b> <i class="ios-ic">${icon('plus-square', 'sm')}</i>.</span></li>
+          <li><span class="n">3</span><span>Tap <b>Add</b>. Open it from your Home Screen to turn on notifications.</span></li>
+        </ol>
+        <p class="sheet-note">Works in Safari, and in Chrome or Edge on iOS 16.4 or later. Notifications need iOS 16.4 or later.</p>`,
+      foot: `<button class="btn btn-primary" data-close>Got it</button>`,
+    });
+  },
+  notifySheet() {
+    App.settings.notifyAskedAt = Date.now(); App.saveSettings();
+    const m = modal({
+      title: 'Turn on notifications?', size: 'app-sheet',
+      body: `<div class="bell-hero">${icon('bell')}</div>
+        <p class="sheet-text">We’ll give you a heads-up when your posters are ready to download, even if you switched to WhatsApp while they were being made. Nothing else, no spam.</p>`,
+      foot: `<button class="btn" data-close>Not now</button><button class="btn btn-primary" id="notif-go">${icon('bell', 'sm')}Allow notifications</button>`,
+    });
+    $('#notif-go', m.el).onclick = async () => { m.close(); await this.askNotify(); };
+  },
+  async askNotify() {
+    if (!this.canNotify()) { if (this.ios && !this.standalone()) this.iosSheet(); else toast('Notifications aren’t available in this browser.', 'info'); return; }
+    let p = Notification.permission;
+    if (p === 'default') { try { p = await Notification.requestPermission(); } catch { p = Notification.permission; } }
+    App.settings.notifyAskedAt = Date.now(); App.saveSettings(); this.refreshUI();
+    if (p === 'granted') { toast('Notifications are on', 'ok'); this.notify('Notifications are on', 'We’ll tell you when your posters are ready.', { tag: 'welcome' }); }
+    else if (p === 'denied') toast('Notifications are blocked. You can allow them in your phone or browser settings.', 'info', null, 7000);
+  },
+  async notify(title, body, opts = {}) {
+    if (!(this.canNotify() && Notification.permission === 'granted')) return false;
+    try {
+      const reg = this.reg || await navigator.serviceWorker.getRegistration();
+      const o = { body, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: opts.tag || 'rps', data: { url: location.href } };
+      if (reg) await reg.showNotification(title, o); else new Notification(title, o);
+      return true;
+    } catch (e) { console.warn(e); return false; }
+  },
+  // a short branded splash when launched from the home screen
+  splash() {
+    if (!this.standalone()) return;
+    const el = h(`<div class="app-splash"><div class="sp-in"><img class="ic" src="${BRAND_ASSETS.icon}" alt=""><img class="wm" src="${BRAND_ASSETS.wordmark}" alt="RePocket"><span>Poster Studio</span></div></div>`);
+    document.body.appendChild(el);
+    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, 900);
+  },
+  // light taps on Android when you press the main controls
+  haptics() {
+    if (!navigator.vibrate) return;
+    document.addEventListener('click', e => { if (e.target.closest('.bn-item, .step, .btn-primary, .pr-item, .tpl-card, [data-pic], .swchip, .page-arrow')) navigator.vibrate(8); }, true);
+  },
+  // swipe left/right on the preview to flip between posters in a set
+  swipe() {
+    const vp = $('#stage-viewport'); if (!vp) return; let s = null;
+    vp.addEventListener('touchstart', e => { if (e.touches.length !== 1 || e.target.closest('.el-box, .handle, .el-toolbar')) { s = null; return; } const t = e.touches[0]; s = { x: t.clientX, y: t.clientY, t: Date.now() }; }, { passive: true });
+    vp.addEventListener('touchend', e => {
+      if (!s) return; const t = e.changedTouches[0], dx = t.clientX - s.x, dy = t.clientY - s.y, quick = Date.now() - s.t < 650; s = null;
+      if (quick && Math.abs(dx) > 55 && Math.abs(dy) < Math.abs(dx) * 0.6 && Pages.count() > 1) PagesRail.go(App.page + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+  },
+};
+
+// let people know when a long download finishes while they're in another app
+const _downloadAll = downloadAll;
+downloadAll = async function (projects, onProgress) {
+  const r = await _downloadAll(projects, onProgress);
+  if (document.hidden) AppMode.notify('Your posters are ready', `${projects.length} posters were saved to your downloads.`, { tag: 'download' });
+  return r;
+};
+
+Object.assign(Actions, {
+  'app-install': () => AppMode.install(),
+  'app-notify': () => AppMode.askNotify(),
+});
 </script>
 </body>
 </html>

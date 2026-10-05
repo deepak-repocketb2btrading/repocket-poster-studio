@@ -339,6 +339,23 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .vt-row .input{height:32px;font-size:13px;padding:0 8px;font-family:var(--font-mono)}
 .prod-thumb img.ph{object-fit:cover}
 .bg-badge.match{background:rgba(11,94,215,.88);color:#fff}
+/* ---------- phone step flow ---------- */
+.step[data-step="preview"],.peek-btn,.phone-only{display:none}
+.share-head h2{font-size:20px;letter-spacing:-.01em;text-wrap:balance}
+.share-head p{font-size:13.5px;color:var(--text-2);margin-top:6px;line-height:1.5}
+.share-actions{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.btn-xl{height:54px;font-size:15.5px;font-weight:650;justify-content:center;border-radius:14px;gap:10px}
+.btn-xl svg{width:20px;height:20px}
+.share-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:4px}
+.share-tile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px;border-radius:14px;border:1px solid var(--line-strong);background:var(--surface);text-align:left;transition:border-color .15s,background .15s}
+.share-tile:active{background:var(--hover)}
+.share-tile svg{width:22px;height:22px;color:var(--accent);margin-bottom:6px}
+.share-tile b{font-size:14px;font-weight:650;color:var(--text)}
+.share-tile span{font-size:12px;color:var(--text-3)}
+.share-more{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--text-3)}
+.share-empty{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:24px 12px;border:1px dashed var(--line-strong);border-radius:14px}
+.share-empty b{font-size:15px}
+.share-empty span{font-size:13px;color:var(--text-2);margin-bottom:8px}
 /* ---------- phone app ---------- */
 button,a,.bn-item,.pr-item,.tpl-card,.swchip{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 html.is-app,html.is-app body{overscroll-behavior:none}
@@ -791,7 +808,7 @@ html.is-app,html.is-app body{overscroll-behavior:none}
   .studio.preview-collapsed .steps{top:calc(52px + 46px)}
   .panel-scroll{overflow:visible}
   .pane{padding:16px 16px 24px}
-  .panel-foot{position:sticky;bottom:calc(var(--bnav-h) + env(safe-area-inset-bottom,0px));z-index:11;padding:10px 16px}
+  .panel-foot{position:sticky;bottom:0;z-index:11;padding:10px 16px;box-shadow:0 -6px 16px -10px rgba(16,24,40,.25)}
   .el-toolbar{left:50%!important;transform:translateX(-50%);top:auto!important;bottom:40px}
   .page{padding:20px 16px 32px;gap:18px}
   .page-title{font-size:21px}
@@ -858,6 +875,37 @@ html.is-app,html.is-app body{overscroll-behavior:none}
   .btn-sm{min-height:34px}
   .modal-foot{padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
   .modal-foot .btn{flex:1;justify-content:center;min-height:46px}
+}
+@media (max-width:899px){
+  .step[data-step="text"]{display:none}
+  .step[data-step="preview"]{display:flex}
+  .phone-only{display:block}
+  .pane[data-pane="text"]{border-top:8px solid var(--sunken);margin-top:4px}
+  .studio-bar #btn-export{display:none}
+  /* 1 Stock, 2 Review: full-screen forms, no poster in the way */
+  .studio[data-step="stock"] .stage,.studio[data-step="products"] .stage{display:none}
+  .studio[data-step="stock"] .steps,.studio[data-step="products"] .steps,.studio[data-step="preview"] .steps{top:52px}
+  .studio[data-step="stock"] #stock-input{min-height:38dvh}
+  /* 3 Design: a compact live preview stays on top */
+  .studio[data-step="design"] .stage,.studio[data-step="design"] .stage.has-pages{height:min(38vh,340px);padding-bottom:0}
+  .studio[data-step="design"] .pages-rail{display:none}
+  .studio[data-step="design"] .stage.has-pages .stage-foot{bottom:6px}
+  .studio[data-step="design"] .page-arrow{top:50%}
+  .studio[data-step="design"] .steps{top:calc(52px + min(38vh,340px))}
+  .studio[data-step="design"].preview-collapsed .steps{top:calc(52px + 46px)}
+  /* 4 Preview: big poster, then download / share / copy */
+  .studio[data-step="preview"] .stage{position:relative;top:auto;height:min(56dvh,540px)}
+  .studio[data-step="preview"] .stage.has-pages{height:calc(min(48dvh,460px) + 116px)}
+  .studio[data-step="preview"] #step-next{flex:1}
+  #step-next.dl{background:var(--ok);border-color:var(--ok)}
+  .studio[data-step="preview"] .stage-tools{display:none}
+  .studio[data-step="preview"] .stage-viewport{padding:18px 12px 44px}
+  .studio[data-step="preview"] .steps{position:static}
+  .studio[data-step="preview"] .pane[data-pane="preview"]{padding-bottom:28px}
+  .peek-btn{position:fixed;right:16px;bottom:calc(var(--bnav-h) + 76px + env(safe-area-inset-bottom,0px));z-index:13;display:inline-flex;align-items:center;gap:7px;height:44px;padding:0 18px;border-radius:24px;background:var(--text);color:var(--bg);font-size:14px;font-weight:650;box-shadow:0 10px 24px rgba(16,24,40,.28);animation:peekIn .3s var(--ease)}
+  .peek-btn[hidden]{display:none}
+  .peek-btn svg{width:18px;height:18px}
+  @keyframes peekIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
 }
 @media (max-width:420px){.bar-install span{display:none}.bar-install{padding:0 9px}}
 @media (max-width:1279px){.sb-tour .tour-pill{display:none}}
@@ -926,6 +974,7 @@ html.is-app,html.is-app body{overscroll-behavior:none}
               <button class="step" data-step="products" role="tab"><span class="step-num">2</span><span class="step-lbl">Review</span></button>
               <button class="step" data-step="design" role="tab"><span class="step-num">3</span><span class="step-lbl">Design</span></button>
               <button class="step" data-step="text" role="tab"><span class="step-num">4</span><span class="step-lbl">Details</span></button>
+              <button class="step step-preview" data-step="preview" role="tab"><span class="step-num">4</span><span class="step-lbl">Preview</span></button>
             </div>
             <div class="panel-scroll" id="panel-scroll">
 
@@ -1068,6 +1117,7 @@ html.is-app,html.is-app body{overscroll-behavior:none}
 
               <!-- STEP 4: TEXT & BRAND -->
               <div class="pane" data-pane="text" hidden>
+                <div class="pane-head phone-only"><h2>Text &amp; branding</h2><p>Headline, subtitle, call to action and which contact details show.</p></div>
                 <div class="section">
                   <div class="section-head"><div class="section-title">Headline</div></div>
                   <input class="input" id="t-headline" data-bind="text.headline" placeholder="AVAILABLE STOCK">
@@ -1095,7 +1145,14 @@ html.is-app,html.is-app body{overscroll-behavior:none}
                   <p class="hint" id="brand-hint"></p>
                 </div>
               </div>
+
+              <!-- PHONE: PREVIEW & SHARE -->
+              <div class="pane" data-pane="preview" hidden>
+                <div class="share-head"><h2 id="share-title">Your poster is ready</h2><p id="share-sub"></p></div>
+                <div class="share-actions" id="share-actions"></div>
+              </div>
             </div>
+            <button class="peek-btn" id="peek-btn" data-action="peek" hidden><i data-icon="eye"></i>Preview</button>
             <div class="panel-foot">
               <button class="btn" id="step-back" data-action="step-back"><i data-icon="chevron-left"></i>Back</button>
               <button class="btn btn-primary" id="step-next" data-action="step-next"><span id="step-next-lbl">Next</span><i data-icon="arrow-right"></i></button>
@@ -4671,7 +4728,7 @@ const autosave = debounce(() => {
 // every design with products is kept in My posters automatically
 const posterAutosave = debounce(() => { const p = App.project; if (p.products.length && !p.isSample) savePoster({ silent: true }); }, 2200);
 App.changed = function (o = {}) {
-  App.project.updatedAt = Date.now();
+  App.project.updatedAt = Date.now(); renderPeek();
   Studio.requestRender(); scheduleThumbs();
   setSaveState('saving'); autosave();
   if (o.hist === 'now') { Hist.pushSoon.cancel(); Hist.push(); }
@@ -4879,19 +4936,56 @@ const Editor = {
    Panel: steps, bindings
    ===================================================================== */
 const STEPS = ['stock', 'products', 'design', 'text'];
-const NEXT_LABEL = { stock: 'Review products', products: 'Choose design', design: 'Add details', text: 'Export poster' };
+// on phones the flow is shorter: details live inside Design, and it ends on a big Preview with download / share / copy
+const PHONE_STEPS = ['stock', 'products', 'design', 'preview'];
+const stepsFor = () => (isMobile() ? PHONE_STEPS : STEPS);
+const NEXT_LABEL = { stock: 'Review products', products: 'Choose design', design: 'Add details', text: 'Export poster', preview: '' };
+const PHONE_NEXT = { stock: 'Review products', products: 'Choose design', design: 'Preview & download', preview: '' };
 function setStep(s) {
-  if (!STEPS.includes(s)) s = 'stock';
+  const phone = isMobile(), list = stepsFor();
+  if (phone && s === 'text') s = 'design';
+  if (!phone && s === 'preview') s = 'text';
+  if (!list.includes(s)) s = 'stock';
   App.step = s; LS.set('step', s);
-  $$('.step').forEach(b => { const i = STEPS.indexOf(b.dataset.step), j = STEPS.indexOf(s); b.classList.toggle('active', i === j); b.classList.toggle('done', i < j); b.setAttribute('aria-selected', String(i === j)); });
-  $$('.pane').forEach(p => { p.hidden = p.dataset.pane !== s; });
+  $('#studio')?.setAttribute('data-step', s);
+  $$('.step').forEach(b => { const i = list.indexOf(b.dataset.step), j = list.indexOf(s); b.classList.toggle('active', i === j); b.classList.toggle('done', i >= 0 && i < j); b.setAttribute('aria-selected', String(i === j)); });
+  $$('.pane').forEach(p => { p.hidden = !(p.dataset.pane === s || (phone && s === 'design' && p.dataset.pane === 'text')); });
   $('#step-back').disabled = s === 'stock';
-  $('#step-next-lbl').textContent = NEXT_LABEL[s];
-  if (!isMobile()) $('#panel-scroll').scrollTop = 0;
-  else { const st = $('.steps'); const v = $('#view-studio'); if (st && v.scrollTop > st.offsetTop) v.scrollTop = st.offsetTop - 40; }
+  $('#step-back').lastChild.textContent = phone && s === 'preview' ? 'Edit' : 'Back';
+  const last = phone && s === 'preview', pages = last ? Pages.count() : 1;
+  $('#step-next-lbl').textContent = last ? (pages > 1 ? `Download all ${pages}` : 'Download') : (phone ? PHONE_NEXT : NEXT_LABEL)[s];
+  const ni = $('#step-next svg'); if (ni) setIcon(ni, last ? 'download' : 'arrow-right');
+  $('#step-next').classList.toggle('dl', last);
+  if (!phone) $('#panel-scroll').scrollTop = 0;
+  else { const v = $('#view-studio'); if (v) v.scrollTop = 0; }
   if (s === 'design') { renderTplGrid(); renderBgStrip(); scheduleThumbs(true); }
+  if (s === 'design' || s === 'text') renderBrandMini();
   if (s === 'products') { renderProducts(); renderBulkCallout(); }
-  if (s === 'text') renderBrandMini();
+  if (s === 'preview') { renderSharePane(); requestAnimationFrame(() => Studio.fit()); Exporter.prerender().catch(() => { }); }
+  renderPeek();
+}
+// phone: a floating "Preview" button while you're filling in the list
+function renderPeek() {
+  const b = $('#peek-btn'); if (!b) return;
+  b.hidden = !(isMobile() && ['stock', 'products'].includes(App.step) && App.project.products.some(p => p.include !== false));
+}
+// phone: the last step, big preview plus everything you can do with it
+function renderSharePane() {
+  const box = $('#share-actions'); if (!box) return;
+  const n = App.project.products.filter(p => p.include !== false).length;
+  if (!n) { box.innerHTML = `<div class="share-empty"><b>No products yet</b><span>Paste your stock list first, then come back here to download.</span><button class="btn btn-primary" data-goto-step="stock">${icon('clipboard', 'sm')}Paste stock list</button></div>`; $('#share-title').textContent = 'Nothing to preview yet'; return; }
+  const pages = Pages.count(), set = pages > 1, i = App.page + 1;
+  $('#share-title').textContent = set ? `Your ${pages} posters are ready` : 'Your poster is ready';
+  $('#share-sub').textContent = set ? `Swipe the preview to check each one. Download tap gets all ${pages} at once; Share and Copy use the poster you’re looking at.` : 'Tap Download below, or share it straight to WhatsApp, or copy it to paste anywhere.';
+  box.innerHTML = `
+    ${set ? `<button class="btn btn-xl" data-action="share-download">${icon('download')}<span>Download poster ${i} only</span></button>` : ''}
+    <div class="share-grid">
+      <button class="share-tile" data-action="share-native">${icon('share')}<b>Share</b><span>WhatsApp, Instagram…</span></button>
+      <button class="share-tile" data-action="share-copy">${icon('copy')}<b>Copy image</b><span>Paste into a chat</span></button>
+      <button class="share-tile" data-action="copy-clean-wa">${icon('text')}<b>Copy list</b><span>Stock as WhatsApp text</span></button>
+      <button class="share-tile" data-action="save">${icon('bookmark')}<b>Save</b><span>Keep in My posters</span></button>
+    </div>
+    <div class="share-more"><button class="link-btn" data-action="share-jpg">Download as JPG instead</button><span>·</span><button class="link-btn" data-action="new-poster">Start a new poster</button></div>`;
 }
 function readVal(t) { if (t.type === 'checkbox') return t.checked; if (t.type === 'range' || t.type === 'number') return t.value === '' ? '' : +t.value; return t.value; }
 function updRange(t) {
@@ -6153,8 +6247,13 @@ const Actions = {
   'suggest-subtitle': () => { const p = App.project; const s = suggestSubtitle(); if (!s) { toast('No regions in your stock list to build a subtitle from.', 'info'); return; } p.text.subtitle = s; p.autoSub = s; syncBindings($('[data-pane=text]')); App.changed({ hist: 'now' }); },
   'use-headline': b => { App.project.text.headline = b.dataset.text; syncBindings($('[data-pane=text]')); App.changed({ hist: 'now' }); toast('Headline updated', 'ok'); },
   'use-market': () => applyTemplate('market'),
-  'step-back': () => setStep(STEPS[Math.max(0, STEPS.indexOf(App.step) - 1)]),
-  'step-next': () => { const i = STEPS.indexOf(App.step); if (i < STEPS.length - 1) setStep(STEPS[i + 1]); else exportMenu($('#btn-export')); },
+  'step-back': () => { const l = stepsFor(); setStep(l[Math.max(0, l.indexOf(App.step) - 1)]); },
+  'step-next': a => { const l = stepsFor(), i = l.indexOf(App.step); if (i < l.length - 1) setStep(l[i + 1]); else if (isMobile()) { if (Pages.count() > 1) Exporter.downloadAllPages(); else Exporter.download('png'); } else exportMenu($('#btn-export')); },
+  peek: () => setStep('preview'),
+  'share-download': () => Exporter.download('png'),
+  'share-jpg': () => Exporter.download('jpeg'),
+  'share-copy': () => Exporter.copy(),
+  'share-native': () => Exporter.share(),
   'toggle-preview': () => { const s = $('#studio'); s.classList.toggle('preview-collapsed'); setIcon('#pv-ic', s.classList.contains('preview-collapsed') ? 'chevron-down' : 'chevron-up'); setTimeout(() => Studio.fit(), 60); },
   'zoom-out': () => Studio.zoomBy(1 / 1.2), 'zoom-in': () => Studio.zoomBy(1.2), 'zoom-fit': () => { App.zoom = 'fit'; Studio.fit(); },
   'toggle-grid': () => { const p = App.project; p.layout.grid = !p.layout.grid; syncBindings($('[data-pane=design]')); App.changed({ hist: 'now' }); toast(p.layout.grid ? 'Snap to grid on' : 'Snap to grid off', 'info', null, 1400); },
@@ -6302,6 +6401,7 @@ async function init() {
   setSaveState('saved');
   FolderSync.init();
   Tips.init(); AppMode.init();
+  matchMedia('(max-width: 899px)').addEventListener?.('change', () => { if (App.view === 'studio') setStep(App.step); });
   if (!App.settings.tourSeen) {
     $$('.sb-tour, .bar-tour').forEach(b => b.classList.add('is-new'));
     if (!App.settings.tourPrompted) { App.settings.tourPrompted = true; App.saveSettings(); setTimeout(() => { if (!Tour.on) toast('New here? Take the 3-minute tour of the studio.', 'info', { label: 'Start tour', fn: () => Tour.start() }, 12000); }, 1400); }
@@ -6438,6 +6538,7 @@ const PagesRail = {
     const j = clamp(i, 0, n - 1); if (j === App.page) return;
     const w = $('#poster-wrap'); if (w) { w.classList.remove('in-l', 'in-r'); void w.offsetWidth; w.classList.add(j > App.page ? 'in-r' : 'in-l'); }
     App.page = j; Editor.select(null); Studio.render();
+    if (App.step === 'preview') renderSharePane();
   },
   update(L) {
     const rail = $('#pages-rail'); if (!rail) return;
@@ -7060,7 +7161,7 @@ const AppMode = {
   // light taps on Android when you press the main controls
   haptics() {
     if (!navigator.vibrate) return;
-    document.addEventListener('click', e => { if (e.target.closest('.bn-item, .step, .btn-primary, .pr-item, .tpl-card, [data-pic], .swchip, .page-arrow')) navigator.vibrate(8); }, true);
+    document.addEventListener('click', e => { if (!e.isTrusted || (navigator.userActivation && !navigator.userActivation.isActive)) return; if (e.target.closest('.bn-item, .step, .btn-primary, .pr-item, .tpl-card, [data-pic], .swchip, .page-arrow')) navigator.vibrate(8); }, true);
   },
   // swipe left/right on the preview to flip between posters in a set
   swipe() {

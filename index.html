@@ -391,6 +391,34 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .tpl-pick.dense .tp-del{width:18px;height:18px}
 .tpl-pick.dense .tp-del svg,.tpl-pick.dense .tp-check svg{width:10px;height:10px}
 .tpl-pick.dense .tp-check{width:16px;height:16px}
+/* bigger template cards when there's room, and the big preview */
+.tpl-pick.roomy .tp-media{padding:10px}
+.tpl-pick.roomy .tp-media canvas{border-radius:5px;box-shadow:0 8px 22px rgba(16,24,40,.22)}
+.tpl-pick.roomy .tp-body{padding:10px 12px 12px;gap:3px;min-height:0;align-items:flex-start;text-align:left}
+.tpl-pick.roomy .tp-body b{font-size:14px;line-height:18px;-webkit-line-clamp:1}
+.tpl-pick.roomy .tp-body span{display:-webkit-box;font-size:12px}
+.tpl-pick.roomy .tp-tags{display:flex}
+.tpl-pick.roomy .tp-del,.tpl-pick.roomy .tp-zoom{width:32px;height:32px}
+.tpl-pick.roomy .tp-del svg,.tpl-pick.roomy .tp-zoom svg{width:15px;height:15px}
+.tpl-pick.roomy .tp-check{width:28px;height:28px;left:8px;top:8px}
+.tpl-pick.roomy .tp-check svg{width:15px;height:15px}
+.tpl-pick.roomy .tp-del{right:8px;top:8px}
+.tp-zoom{position:absolute;right:3px;bottom:3px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(10,14,24,.72);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25);transition:transform .15s,background .15s}
+.tp-zoom:hover{transform:scale(1.08);background:var(--accent)}
+.tp-zoom svg{width:12px;height:12px}
+.tpl-pick.roomy .tp-zoom{right:8px;bottom:8px}
+.tpl-pick.dense .tp-zoom{width:18px;height:18px}
+.tpl-pick.dense .tp-zoom svg{width:10px;height:10px}
+.modal.tpl-view{width:min(620px,100%)}
+.tv-wrap{display:flex;align-items:center;gap:10px}
+.tv-stage{flex:1;min-width:0;display:grid;place-items:center;padding:14px;border-radius:14px;background:var(--sunken);background-image:radial-gradient(var(--stage-dot) 1px,transparent 1.2px);background-size:14px 14px;touch-action:pan-y}
+.tv-stage canvas{display:block;max-width:100%;max-height:min(calc(100dvh - 330px),720px);width:auto;height:auto;border-radius:6px;box-shadow:var(--shadow-lg)}
+.tv-nav{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line-strong);color:var(--text);box-shadow:var(--shadow-sm)}
+.tv-nav:hover{border-color:var(--accent);color:var(--accent-ink)}
+.tv-info{display:flex;flex-direction:column;gap:6px}
+.tv-info p{margin:0;font-size:13.5px;color:var(--text-2);line-height:1.5}
+.tv-info .tp-tags{display:flex}
+.tv-count{font-size:12px;color:var(--text-3);font-variant-numeric:tabular-nums}
 /* ---------- phone step flow ---------- */
 .step[data-step="preview"],.peek-btn,.phone-only{display:none}
 .share-head h2{font-size:20px;letter-spacing:-.01em;text-wrap:balance}
@@ -973,6 +1001,12 @@ html.is-app,html.is-app body{overscroll-behavior:none}
   .steps{padding:0 4px}
   .step{gap:5px}
   .step:not(.active) .step-lbl{display:none}
+}
+@media (max-width:899px){
+  .tv-wrap{gap:6px}
+  .tv-nav{width:34px;height:34px}
+  .tv-stage{padding:8px}
+  .tv-stage canvas{max-height:calc(92dvh - 300px)}
 }
 @media (max-width:420px){.bar-install span{display:none}.bar-install{padding:0 9px}}
 @media (max-width:1279px){.sb-tour .tour-pill{display:none}}
@@ -5451,7 +5485,7 @@ function renderTplPick() {
   if (box.dataset.sig !== sig) {
     box.dataset.sig = sig;
     box.innerHTML = ids.map(id => { const t = TEMPLATES[id]; return `<div class="tpick" data-tpl="${id}" role="button" tabindex="0" aria-label="Use the ${esc(t.name)} template" data-tip="<b>${esc(t.name)}</b> ${esc(t.desc)}">
-        <div class="tp-media skeleton"><canvas width="300"></canvas><span class="tp-check">${icon('check', 'sm')}</span><button class="tp-del" data-tpl-del="${id}" aria-label="Delete the ${esc(t.name)} template">${icon('trash', 'sm')}</button></div>
+        <div class="tp-media skeleton"><canvas width="420"></canvas><span class="tp-check">${icon('check', 'sm')}</span><button class="tp-del" data-tpl-del="${id}" aria-label="Delete the ${esc(t.name)} template">${icon('trash', 'sm')}</button><button class="tp-zoom" data-tpl-zoom="${id}" aria-label="Bigger preview of ${esc(t.name)}">${icon('maximize', 'sm')}</button></div>
         <div class="tp-body"><b>${esc(t.short || t.name)}</b><span>${esc(t.desc)}</span><div class="tp-tags">${(t.tags || []).map(g => `<i>${esc(g)}</i>`).join('')}</div></div>
       </div>`; }).join('');
     drawTplPick();
@@ -5461,22 +5495,43 @@ function renderTplPick() {
   $('#tpl-restore').innerHTML = hidden.length ? `<button class="link-btn" data-action="tpl-restore">${icon('refresh', 'sm')}Restore ${hidden.length} deleted template${hidden.length === 1 ? '' : 's'}</button>` : '';
   requestAnimationFrame(fitTplPick);
 }
-// always 5 templates per row; the grid is sized so all of them fit above the Next button
+// always 5 templates per row, as big as the width allows (bigger cards on a computer, scrolls if needed)
 function fitTplPick() {
   const box = $('#tpl-pick'); if (!box || box.offsetParent === null) return;
-  const n = box.children.length; if (!n) return;
-  const f = App.project.format, ar = f.w / f.h; box.style.setProperty('--tp-ar', `${f.w} / ${f.h}`);
-  box.style.maxWidth = ''; const W = box.clientWidth;
-  const cols = 5, rows = Math.ceil(n / cols), gap = W < 420 ? 6 : 10, pad = 8, label = 36;
-  const foot = $('.panel-foot').getBoundingClientRect().top, top = box.getBoundingClientRect().top;
-  const H = foot - top - ($('#tpl-restore').offsetHeight || 0) - 14;
-  // widest grid whose rows still fit on screen
-  const cwFit = ((H - (rows - 1) * gap) / rows - label - pad) * ar + pad;
-  let gridW = Math.min(W, cols * cwFit + (cols - 1) * gap);
-  if (isMobile() && gridW < W * 0.75) gridW = W;   // very short phones: keep cards readable and let it scroll
-  box.style.maxWidth = Math.floor(gridW) + 'px';
+  const f = App.project.format; box.style.setProperty('--tp-ar', `${f.w} / ${f.h}`);
+  box.style.maxWidth = ''; const W = box.clientWidth, cols = 5, gap = W < 420 ? 6 : W < 900 ? 10 : 16;
+  const gridW = Math.min(W, 1180); box.style.maxWidth = gridW + 'px';
+  const cw = (gridW - gap * (cols - 1)) / cols;
   box.style.setProperty('--tp-cols', cols); box.style.setProperty('--tp-gap', gap + 'px');
-  box.classList.toggle('dense', (gridW - gap * (cols - 1)) / cols < 54);
+  box.classList.toggle('dense', cw < 54); box.classList.toggle('roomy', cw >= 150);
+}
+// big preview of one template, with arrows to flip through them
+function previewTemplate(id) {
+  const ids = visibleTemplates(); let i = Math.max(0, ids.indexOf(id));
+  const m = modal({
+    title: TEMPLATES[ids[i]].name, size: 'tpl-view',
+    body: `<div class="tv-wrap"><button class="tv-nav prev" aria-label="Previous template">${icon('chevron-left')}</button><div class="tv-stage"><canvas width="720"></canvas></div><button class="tv-nav next" aria-label="Next template">${icon('chevron-right')}</button></div>
+      <div class="tv-info"><p></p><div class="tp-tags"></div><span class="tv-count"></span></div>`,
+    foot: `<button class="btn" data-close>Close</button><button class="btn btn-primary" id="tv-use">${icon('check', 'sm')}<span>Use this template</span></button>`,
+  });
+  const cv = $('canvas', m.el);
+  const draw = () => {
+    const tid = ids[i], t = TEMPLATES[tid];
+    $('.modal-head h3', m.el).textContent = t.name;
+    $('.tv-info p', m.el).textContent = t.desc;
+    $('.tv-info .tp-tags', m.el).innerHTML = (t.tags || []).map(g => `<i>${esc(g)}</i>`).join('');
+    $('.tv-count', m.el).textContent = `${i + 1} of ${ids.length}`;
+    $('#tv-use span', m.el).textContent = App.project.template === tid ? 'Using this template' : 'Use this template';
+    try { drawProjectTo(cv, previewProject(App.project, tid)); } catch (e) { console.warn(e); }
+  };
+  const step = d => { i = (i + d + ids.length) % ids.length; draw(); };
+  $('.tv-nav.prev', m.el).onclick = () => step(-1); $('.tv-nav.next', m.el).onclick = () => step(1);
+  $('#tv-use', m.el).onclick = () => { if (App.project.template !== ids[i]) applyTemplate(ids[i], { silent: true }); renderTplPick(); m.close(); toast(`Template: ${TEMPLATES[ids[i]].name}`, 'ok'); };
+  m.el.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); });
+  let sx = null; const st = $('.tv-stage', m.el);
+  st.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+  st.addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1); }, { passive: true });
+  draw();
 }
 window.addEventListener('resize', debounce(() => { if (App.step === 'template') fitTplPick(); }, 120));
 let tplPickToken = 0;
@@ -5568,11 +5623,13 @@ function bindDesign() {
   const pick = $('#tpl-pick');
   pick.addEventListener('click', e => {
     const d = e.target.closest('[data-tpl-del]'); if (d) { e.stopPropagation(); deleteTemplate(d.dataset.tplDel); return; }
+    const z = e.target.closest('[data-tpl-zoom]'); if (z) { e.stopPropagation(); previewTemplate(z.dataset.tplZoom); return; }
     const c = e.target.closest('.tpick'); if (!c) return;
     if (App.project.template !== c.dataset.tpl) applyTemplate(c.dataset.tpl, { silent: true });
     renderTplPick();
   });
   pick.addEventListener('keydown', e => { const c = e.target.closest('.tpick'); if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); c.click(); } });
+  pick.addEventListener('dblclick', e => { const c = e.target.closest('.tpick'); if (c && !e.target.closest('button')) previewTemplate(c.dataset.tpl); });
   $('#bg-strip').addEventListener('click', e => { const c = e.target.closest('[data-bg]'); if (c) useBackground(c.dataset.bg); });
   $('#theme-grid').addEventListener('click', e => {
     const c = e.target.closest('[data-theme-preset]'); if (!c) return; const k = c.dataset.themePreset;
@@ -6803,7 +6860,7 @@ const TOUR_STEPS = [
 
   // ---- 1 Template
   { ch: '1 · Template', sel: '#tpl-pick', view: 'studio', step: 'template', title: 'Pick a template first',
-    body: `<p>The app opens here. Tap a look, then <b>Next</b> to paste your stock. Every card is a live preview using your own products, so what you see is what you get.</p><p>Never use a template? Tap the <b>bin</b> on its card to delete it from your list. <b>Restore</b> under the cards brings them back.</p>`,
+    body: `<p>The app opens here. Tap a look, then <b>Next</b> to paste your stock. Every card is a live preview using your own products, so what you see is what you get.</p><p>Want a closer look? Tap the <b>enlarge</b> button on a card for a big preview, and swipe through the rest. Never use a template? Tap the <b>bin</b> on its card to delete it from your list. <b>Restore</b> under the cards brings them back.</p>`,
     tip: 'Templates also live in Design, so you can switch your mind halfway. We won’t judge.' },
   // ---- 1 Stock
   { ch: '2 · Stock', sel: '.stock-box', view: 'studio', step: 'stock', title: 'Paste the stock list',
@@ -7048,6 +7105,7 @@ const TIPS = [
   // steps
   ['.step[data-step="template"]', '<b>Step 1 · Template</b> Pick the look first.'],
   ['.tp-del', '<b>Delete template</b> Removes it from your list on this device. Restore brings it back.'],
+  ['.tp-zoom', '<b>Bigger preview</b> See this template full size and flip through the others.'],
   ['.tpick', '<b>Template</b> Tap to use it, then Next to paste your stock.'],
   ['[data-action="tpl-restore"]', '<b>Restore</b> Brings back every template you deleted.'],
   ['.step[data-step="stock"]', '<b>Step 2 · Stock</b> Paste the list. The parser does the reading.'],

@@ -364,6 +364,25 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .tpick.active .tp-tags i{border-color:var(--accent-soft)}
 .tpl-restore{display:flex;justify-content:center;margin-top:14px}
 .tpl-restore .link-btn{display:inline-flex;align-items:center;gap:6px}
+/* compact template cards: the whole set fits on one screen */
+.tpl-pick{grid-template-columns:repeat(var(--tp-cols,4),minmax(0,1fr));gap:var(--tp-gap,8px)}
+.tpick{border-radius:10px;border-width:1.5px}
+.tpick .tp-media{aspect-ratio:var(--tp-ar,9 / 16);padding:4px;background-size:10px 10px}
+.tpick .tp-media canvas{border-radius:3px;box-shadow:0 2px 6px rgba(16,24,40,.18)}
+.tpick .tp-body{padding:4px 6px 6px;gap:0}
+.tpick .tp-body{align-items:center;text-align:center;min-height:32px;justify-content:center;padding:4px 2px 5px}
+.tpick .tp-body b{font-size:10.5px;line-height:12.5px;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:normal;word-break:normal;hyphens:none}
+.tpick .tp-body span,.tpick .tp-tags{display:none}
+.tpick .tp-del{width:22px;height:22px;right:3px;top:3px;opacity:.85}
+.tpick .tp-del svg{width:12px;height:12px}
+.tpick .tp-check{width:20px;height:20px;left:3px;top:3px}
+.tpick .tp-check svg{width:12px;height:12px}
+.pane[data-pane="template"] .pane-head{margin-bottom:-4px}
+.tpl-restore{margin-top:10px}
+.tpl-pick.dense .tp-body b{font-size:8.5px;line-height:10.5px;letter-spacing:-.02em}
+.tpl-pick.dense .tp-del{width:18px;height:18px}
+.tpl-pick.dense .tp-del svg,.tpl-pick.dense .tp-check svg{width:10px;height:10px}
+.tpl-pick.dense .tp-check{width:16px;height:16px}
 /* ---------- phone step flow ---------- */
 .step[data-step="preview"],.peek-btn,.phone-only{display:none}
 .share-head h2{font-size:20px;letter-spacing:-.01em;text-wrap:balance}
@@ -934,6 +953,11 @@ html.is-app,html.is-app body{overscroll-behavior:none}
 }
 @media (max-width:899px){
   .studio[data-step="template"] .stage{display:none}
+  /* keep the Back/Next bar on the bottom even when a step is short */
+  .studio{display:flex;flex-direction:column;min-height:100%}
+  .studio-body{flex:1 0 auto}
+  .panel{flex:1 0 auto;display:flex;flex-direction:column}
+  .panel-scroll{flex:1 0 auto}
   .studio[data-step="template"] .steps{top:52px}
   .tpl-pick{gap:10px}
 }
@@ -1016,7 +1040,7 @@ html.is-app,html.is-app body{overscroll-behavior:none}
 
               <!-- STEP 1: TEMPLATE (home) -->
               <div class="pane" data-pane="template" hidden>
-                <div class="pane-head"><h2>Choose a template</h2><p>Start with the look. Your stock, text and branding drop straight in, and you can switch any time in Design.</p></div>
+                <div class="pane-head"><h2>Choose a template</h2><p>Tap a look, then Next. The bin removes ones you don’t use.</p></div>
                 <div class="tpl-pick" id="tpl-pick"></div>
                 <div class="tpl-restore" id="tpl-restore"></div>
               </div>
@@ -4394,7 +4418,7 @@ const TEMPLATES = {
     },
   },
   market: {
-    name: 'Marketplace', desc: 'Information-dense price table for B2B buyers. Fits 20+ lines on one poster.', tags: ['Price table', 'Many products'],
+    name: 'Marketplace', short: 'Market', desc: 'Information-dense price table for B2B buyers. Fits 20+ lines on one poster.', tags: ['Price table', 'Many products'],
     style: { bg: 'corporate-blue', theme: 'repocket', display: 'RePocket' },
     build(P) {
       const u = P.u * P.k, c = P.c, al = 'left';
@@ -5418,16 +5442,34 @@ function renderTplPick() {
   const box = $('#tpl-pick'); if (!box) return; const ids = visibleTemplates(), sig = ids.join(',');
   if (box.dataset.sig !== sig) {
     box.dataset.sig = sig;
-    box.innerHTML = ids.map(id => { const t = TEMPLATES[id]; return `<div class="tpick" data-tpl="${id}" role="button" tabindex="0" aria-label="Use the ${esc(t.name)} template">
+    box.innerHTML = ids.map(id => { const t = TEMPLATES[id]; return `<div class="tpick" data-tpl="${id}" role="button" tabindex="0" aria-label="Use the ${esc(t.name)} template" data-tip="<b>${esc(t.name)}</b> ${esc(t.desc)}">
         <div class="tp-media skeleton"><canvas width="300"></canvas><span class="tp-check">${icon('check', 'sm')}</span><button class="tp-del" data-tpl-del="${id}" aria-label="Delete the ${esc(t.name)} template">${icon('trash', 'sm')}</button></div>
-        <div class="tp-body"><b>${esc(t.name)}</b><span>${esc(t.desc)}</span><div class="tp-tags">${(t.tags || []).map(g => `<i>${esc(g)}</i>`).join('')}</div></div>
+        <div class="tp-body"><b>${esc(t.short || t.name)}</b><span>${esc(t.desc)}</span><div class="tp-tags">${(t.tags || []).map(g => `<i>${esc(g)}</i>`).join('')}</div></div>
       </div>`; }).join('');
     drawTplPick();
   }
   $$('.tpick', box).forEach(c => { const on = c.dataset.tpl === App.project.template; c.classList.toggle('active', on); c.setAttribute('aria-pressed', String(on)); });
   const hidden = (App.settings.hiddenTemplates || []).filter(id => TEMPLATES[id]);
   $('#tpl-restore').innerHTML = hidden.length ? `<button class="link-btn" data-action="tpl-restore">${icon('refresh', 'sm')}Restore ${hidden.length} deleted template${hidden.length === 1 ? '' : 's'}</button>` : '';
+  requestAnimationFrame(fitTplPick);
 }
+// pick the column count so every template fits on one screen, with the biggest previews that still fit
+function fitTplPick() {
+  const box = $('#tpl-pick'); if (!box || box.offsetParent === null) return;
+  const n = box.children.length; if (!n) return;
+  const f = App.project.format, ar = f.w / f.h; box.style.setProperty('--tp-ar', `${f.w} / ${f.h}`);
+  const W = box.clientWidth, gap = W < 420 ? 6 : 8, pad = 8, label = 36;
+  const foot = $('.panel-foot').getBoundingClientRect().top, top = box.getBoundingClientRect().top;
+  const H = foot - top - ($('#tpl-restore').offsetHeight || 0) - 14;
+  let cols = 2;
+  for (let c = 2; c <= 8; c++) {
+    cols = c; const cw = (W - gap * (c - 1)) / c, ch = (cw - pad) / ar + pad + label, rows = Math.ceil(n / c);
+    if (rows * ch + (rows - 1) * gap <= H) break;
+  }
+  box.style.setProperty('--tp-cols', cols); box.style.setProperty('--tp-gap', gap + 'px');
+  box.classList.toggle('dense', (W - gap * (cols - 1)) / cols < 54);
+}
+window.addEventListener('resize', debounce(() => { if (App.step === 'template') fitTplPick(); }, 120));
 let tplPickToken = 0;
 async function drawTplPick() {
   const token = ++tplPickToken;
